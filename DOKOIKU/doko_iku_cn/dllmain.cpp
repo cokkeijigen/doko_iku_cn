@@ -61,11 +61,11 @@ namespace Hook::fun {
             SelectObject(hdc, font->jis_f);
         } else {
             // 一些字符的替换
-            SelectObject(hdc, font->gbk_f);
             if (uChar == 0x8140 ) uChar = 0xA1A1; // 全角空格
             else if (uChar == 0x8145) uChar = 0xA1A4; // ·
             else if (uChar == 0x8175) uChar = 0xA1B8; // 「
             else if (uChar == 0x8179) uChar = 0xA1BE; // 【
+            SelectObject(hdc, font->gbk_f);
         }
         return val::oldGetGlyphOutlineA(hdc, uChar, fuFormat, lpgm, cjBuffer, pvBuffer, lpmat);
     }
@@ -119,4 +119,3 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpRese
     }
     return TRUE;
 }
-
