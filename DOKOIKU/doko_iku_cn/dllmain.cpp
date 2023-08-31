@@ -35,10 +35,7 @@ namespace Hook::type {
 namespace Hook::val {
     HMODULE   gdi32_dll;
     HMODULE   kernel32_dll;
-    uintptr_t BaseAdrr;
     std::vector<type::font *> fonts;
-    type::ptrGetGlyphOutlineA oldGetGlyphOutlineA;
-    type::ptrCreateFileA oldCreateFileA;
 }
 
 namespace Hook::fun {
@@ -52,6 +49,7 @@ namespace Hook::fun {
         return nf;
     }
 
+    type::ptrGetGlyphOutlineA oldGetGlyphOutlineA;
     DWORD WINAPI newGetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuFormat, LPGLYPHMETRICS lpgm, DWORD cjBuffer, LPVOID pvBuffer, MAT2* lpmat) {
         tagTEXTMETRICA lptm;
         GetTextMetricsA(hdc, &lptm);
@@ -67,31 +65,30 @@ namespace Hook::fun {
             else if (uChar == 0x8179) uChar = 0xA1BE; // 【
             SelectObject(hdc, font->gbk_f);
         }
-        return val::oldGetGlyphOutlineA(hdc, uChar, fuFormat, lpgm, cjBuffer, pvBuffer, lpmat);
+        return oldGetGlyphOutlineA(hdc, uChar, fuFormat, lpgm, cjBuffer, pvBuffer, lpmat);
     }
 
+    type::ptrCreateFileA oldCreateFileA;
     HANDLE WINAPI newCreateFileA(LPCSTR lpfn, DWORD dwda, DWORD dwsm, LPSECURITY_ATTRIBUTES lpsa, DWORD dwcd, DWORD dwfa, HANDLE htf) {
-        //std::cout << "load file: " << lpfn << std::endl;
-        return val::oldCreateFileA(!strcmp(lpfn, "update.pak") ? "doko_iku_cn.pak" : lpfn, dwda, dwsm, lpsa, dwcd, dwfa, htf);
+        return oldCreateFileA(!strcmp(lpfn, "update.pak") ? "doko_iku_cn.pak" : lpfn, dwda, dwsm, lpsa, dwcd, dwfa, htf);
     }
 }
 
 namespace Hook {
     
     void init() {
-        val::BaseAdrr = (uintptr_t)GetModuleHandle(NULL);
         if ((val::gdi32_dll = GetModuleHandle(L"gdi32.dll")) != NULL) {
-            val::oldGetGlyphOutlineA = (type::ptrGetGlyphOutlineA)GetProcAddress(val::gdi32_dll, "GetGlyphOutlineA");
+            fun::oldGetGlyphOutlineA = (type::ptrGetGlyphOutlineA)GetProcAddress(val::gdi32_dll, "GetGlyphOutlineA");
         }
         if ((val::kernel32_dll = GetModuleHandle(L"kernel32.dll")) != NULL) {
-            val::oldCreateFileA = (type::ptrCreateFileA)GetProcAddress(val::kernel32_dll, "CreateFileA");
+            fun::oldCreateFileA = (type::ptrCreateFileA)GetProcAddress(val::kernel32_dll, "CreateFileA");
         }
     }
 
     void start() {
         DetourTransactionBegin();
-        DetourAttach((void**)&val::oldGetGlyphOutlineA, fun::newGetGlyphOutlineA);
-        DetourAttach((void**)&val::oldCreateFileA, fun::newCreateFileA);
+        DetourAttach((void**)&fun::oldGetGlyphOutlineA, fun::newGetGlyphOutlineA);
+        DetourAttach((void**)&fun::oldCreateFileA, fun::newCreateFileA);
         DetourUpdateThread(GetCurrentThread());
         DetourTransactionCommit();
     }
