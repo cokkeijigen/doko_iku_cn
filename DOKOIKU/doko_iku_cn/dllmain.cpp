@@ -77,10 +77,10 @@ namespace Hook::fun {
 namespace Hook {
     
     void init() {
-        if ((val::gdi32_dll = GetModuleHandle(L"gdi32.dll")) != NULL) {
+        if ((val::gdi32_dll = GetModuleHandleA("gdi32.dll")) != NULL) {
             fun::oldGetGlyphOutlineA = (type::ptrGetGlyphOutlineA)GetProcAddress(val::gdi32_dll, "GetGlyphOutlineA");
         }
-        if ((val::kernel32_dll = GetModuleHandle(L"kernel32.dll")) != NULL) {
+        if ((val::kernel32_dll = GetModuleHandleA("kernel32.dll")) != NULL) {
             fun::oldCreateFileA = (type::ptrCreateFileA)GetProcAddress(val::kernel32_dll, "CreateFileA");
         }
     }
