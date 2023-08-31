@@ -41,14 +41,18 @@ def text_parse(text_array: list[str]) -> list[list[str]]:
                 if len(text) > 0:
                     num = text[0].split('|')[1].strip()
                     text = text[1]
-                    text = text.replace('＠', '仐')
-                    text = text.replace('@', '仐')
+                    # text = text.replace('＠', '仐')
+                    # text = text.replace('@', '仐')
+                    # text = text.replace('【', '亂')
+                    # text = text.replace('】', '亃')
+                    # text = text.replace('｛', '乷')
+                    # text = text.replace('｝', '乸')
                     text = text.replace('「', '乽')
-                    text = text.replace('【', '亂')
+                    text = text.replace('@', '＠')
                     text = text.replace('・', '·')
-                    text = text.replace('｛', '乷')
-                    text = text.replace('｝', '乸')
                     text = text.replace('♪', '§')
+                    text = text.replace('〜', '～')
+                    text = text.replace('−', '—')
                     block_text.append([int(num), text + '\n'])
         except: pass
     return result
@@ -86,9 +90,14 @@ def text_com(cn_text: list[list[str]], old_text: list[str]) -> list[str]:
     return result
 
 if __name__ == '__main__':
-    new_text_array: list[str] = file_read('./doko_iku_text/0001.txt', 'utf-8')
-    old_text_array: list[str] = file_read('./old/txt/0001.txt', 'gbk')
-    parsed_text: list[list[str]]  = text_parse(new_text_array)
-    result: list[str] = text_com(parsed_text, old_text_array)
-    file_write('./0001.txt', result, 'gbk')
+    for f in os.listdir('./doko_iku_text/'):
+        old_text_array: list[str] = file_read(f'./old/txt/{f}', 'gbk')
+        new_text_array: list[str] = file_read(f'./doko_iku_text/{f}', 'utf-8')
+        parsed_text: list[list[str]]  = text_parse(new_text_array)
+        result: list[str] = text_com(parsed_text, old_text_array)
+        try:
+            file_write(f'./new/{f}', result, 'gbk')
+            print(f)
+        except Exception as err:
+            print(f"{f}: {str(err)}")
     # print(result)
