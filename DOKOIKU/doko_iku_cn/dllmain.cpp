@@ -27,15 +27,15 @@ namespace Hook::Mem {
 }
 
 namespace Hook::type {
-    typedef DWORD(WINAPI *ptrGetGlyphOutlineA)(HDC, UINT, UINT, LPGLYPHMETRICS, DWORD, LPVOID, MAT2*);
-    typedef HANDLE(WINAPI *ptrCreateFileA)(LPCSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
+    typedef DWORD(WINAPI *GetGlyphOutlineA)(HDC, UINT, UINT, LPGLYPHMETRICS, DWORD, LPVOID, MAT2*);
+    typedef HANDLE(WINAPI *CreateFileA)(LPCSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
     struct font { HFONT jis_f; HFONT gbk_f; size_t size; };
 }
 
 namespace Hook::val {
-    HMODULE   gdi32_dll;
-    HMODULE   kernel32_dll;
-    std::vector<type::font *> fonts;
+    HMODULE gdi32;
+    HMODULE kernel32;
+    std::vector<type::font*> fonts;
 }
 
 namespace Hook::fun {
@@ -49,7 +49,7 @@ namespace Hook::fun {
         return nf;
     }
 
-    type::ptrGetGlyphOutlineA oldGetGlyphOutlineA;
+    type::GetGlyphOutlineA oldGetGlyphOutlineA;
     DWORD WINAPI newGetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuFormat, LPGLYPHMETRICS lpgm, DWORD cjBuffer, LPVOID pvBuffer, MAT2* lpmat) {
         tagTEXTMETRICA lptm;
         GetTextMetricsA(hdc, &lptm);
@@ -59,16 +59,17 @@ namespace Hook::fun {
             SelectObject(hdc, font->jis_f);
         } else {
             // 一些字符的替换
-            if (uChar == 0x8140 ) uChar = 0xA1A1; // 全角空格
-            else if (uChar == 0x8145) uChar = 0xA1A4; // ·
-            else if (uChar == 0x8175) uChar = 0xA1B8; // 「
-            else if (uChar == 0x8179) uChar = 0xA1BE; // 【
+            //if (uChar == 0x8140 ) uChar = 0xA1A1; // 全角空格
+            //else if (uChar == 0x8145) uChar = 0xA1A4; // ·
+            //else if (uChar == 0x8175) uChar = 0xA1B8; // 「
+            //else if (uChar == 0x8179) uChar = 0xA1BE; // 【
+            if (uChar == 0x8175) uChar = 0xA1B8; // 「
             SelectObject(hdc, font->gbk_f);
         }
         return oldGetGlyphOutlineA(hdc, uChar, fuFormat, lpgm, cjBuffer, pvBuffer, lpmat);
     }
 
-    type::ptrCreateFileA oldCreateFileA;
+    type::CreateFileA oldCreateFileA;
     HANDLE WINAPI newCreateFileA(LPCSTR lpfn, DWORD dwda, DWORD dwsm, LPSECURITY_ATTRIBUTES lpsa, DWORD dwcd, DWORD dwfa, HANDLE htf) {
         return oldCreateFileA(!strcmp(lpfn, "update.pak") ? "doko_iku_cn.pak" : lpfn, dwda, dwsm, lpsa, dwcd, dwfa, htf);
     }
@@ -77,11 +78,11 @@ namespace Hook::fun {
 namespace Hook {
     
     void init() {
-        if ((val::gdi32_dll = GetModuleHandleA("gdi32.dll")) != NULL) {
-            fun::oldGetGlyphOutlineA = (type::ptrGetGlyphOutlineA)GetProcAddress(val::gdi32_dll, "GetGlyphOutlineA");
+        if ((val::gdi32 = GetModuleHandleA("gdi32.dll")) != NULL) {
+            fun::oldGetGlyphOutlineA = (type::GetGlyphOutlineA)GetProcAddress(val::gdi32, "GetGlyphOutlineA");
         }
-        if ((val::kernel32_dll = GetModuleHandleA("kernel32.dll")) != NULL) {
-            fun::oldCreateFileA = (type::ptrCreateFileA)GetProcAddress(val::kernel32_dll, "CreateFileA");
+        if ((val::kernel32 = GetModuleHandleA("kernel32.dll")) != NULL) {
+            fun::oldCreateFileA = (type::CreateFileA)GetProcAddress(val::kernel32, "CreateFileA");
         }
     }
 
@@ -108,9 +109,7 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpRese
         Hook::start();
         break;
     case DLL_THREAD_ATTACH:
-        break;
     case DLL_THREAD_DETACH:
-        break;
     case DLL_PROCESS_DETACH:
         break;
     }
