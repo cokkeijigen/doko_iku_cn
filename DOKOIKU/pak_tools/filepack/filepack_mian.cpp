@@ -115,7 +115,7 @@ namespace work {
             }
             work::pack_completing();
             std::cout << "> DONE. FILES: " << top.size - 1 << std::endl;
-        }
+        } 
         else {
             std::cout << "> FILE PACKAGING FAILED!" << std::endl;
         }

@@ -185,9 +185,6 @@
   <ItemGroup>
     <ClCompile Include="filepack_mian.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\file_helper.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

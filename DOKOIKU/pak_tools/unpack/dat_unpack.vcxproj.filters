@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\file_helper.h">
+    <ClInclude Include="file_helper.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
