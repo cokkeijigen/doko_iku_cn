@@ -5,14 +5,16 @@ VisualStudioVersion = 17.7.34009.444
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "doko_iku_cn", "doko_iku_cn\doko_iku_cn.vcxproj", "{F3027F3E-3341-4B47-ACC3-099EEC76842B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pak_unpack", "pak_tools\unpack\dat_unpack.vcxproj", "{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pak_filepack", "filepack\pak_filepack.vcxproj", "{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pak_filepack", "pak_tools\filepack\pak_filepack.vcxproj", "{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pak_unpack", "unpack\dat_unpack.vcxproj", "{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		pak_unpack|x64 = pak_unpack|x64
+		pak_unpack|x86 = pak_unpack|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -21,26 +23,38 @@ Global
 		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.Debug|x64.Build.0 = Debug|x64
 		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.Debug|x86.ActiveCfg = Debug|Win32
 		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.Debug|x86.Build.0 = Debug|Win32
+		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.pak_unpack|x64.ActiveCfg = pak_unpack|x64
+		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.pak_unpack|x64.Build.0 = pak_unpack|x64
+		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.pak_unpack|x86.ActiveCfg = pak_unpack|Win32
+		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.pak_unpack|x86.Build.0 = pak_unpack|Win32
 		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.Release|x64.ActiveCfg = Release|x64
 		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.Release|x64.Build.0 = Release|x64
 		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.Release|x86.ActiveCfg = Release|Win32
 		{F3027F3E-3341-4B47-ACC3-099EEC76842B}.Release|x86.Build.0 = Release|Win32
-		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Debug|x64.ActiveCfg = Debug|x64
-		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Debug|x64.Build.0 = Debug|x64
-		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Debug|x86.ActiveCfg = Debug|Win32
-		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Debug|x86.Build.0 = Debug|Win32
-		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Release|x64.ActiveCfg = Release|x64
-		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Release|x64.Build.0 = Release|x64
-		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Release|x86.ActiveCfg = Release|Win32
-		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Release|x86.Build.0 = Release|Win32
 		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.Debug|x64.ActiveCfg = Debug|x64
 		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.Debug|x64.Build.0 = Debug|x64
 		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.Debug|x86.ActiveCfg = Debug|Win32
 		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.Debug|x86.Build.0 = Debug|Win32
+		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.pak_unpack|x64.ActiveCfg = pak_unpack|x64
+		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.pak_unpack|x64.Build.0 = pak_unpack|x64
+		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.pak_unpack|x86.ActiveCfg = pak_unpack|Win32
+		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.pak_unpack|x86.Build.0 = pak_unpack|Win32
 		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.Release|x64.ActiveCfg = Release|x64
 		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.Release|x64.Build.0 = Release|x64
 		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.Release|x86.ActiveCfg = Release|Win32
 		{EFC38F5E-B1CC-4461-A52D-F2F46C7B090C}.Release|x86.Build.0 = Release|Win32
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Debug|x64.ActiveCfg = Debug|x64
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Debug|x64.Build.0 = Debug|x64
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Debug|x86.ActiveCfg = Debug|Win32
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Debug|x86.Build.0 = Debug|Win32
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.pak_unpack|x64.ActiveCfg = pak_unpack|x64
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.pak_unpack|x64.Build.0 = pak_unpack|x64
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.pak_unpack|x86.ActiveCfg = pak_unpack|Win32
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.pak_unpack|x86.Build.0 = pak_unpack|Win32
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Release|x64.ActiveCfg = Release|x64
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Release|x64.Build.0 = Release|x64
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Release|x86.ActiveCfg = Release|Win32
+		{43DF2AA9-AA77-4E37-A157-05BBDC10C66E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
