@@ -110,12 +110,8 @@ namespace work {
 
     void run_starting() {
         if (work::is_warking) {
-            try {
-                while (!directories.empty()) {
-                    current_offset = add_file_to_pack(directories.top(), current_offset);
-                }
-            } catch(std::exception &e) {
-                std::cout<< "err: " << e.what() << std::endl;
+            while (!directories.empty()) {
+                current_offset = add_file_to_pack(directories.top(), current_offset);
             }
             work::pack_completing();
             std::cout << "> DONE. FILES: " << top.size - 1 << std::endl;
