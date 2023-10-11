@@ -96,7 +96,7 @@ namespace work {
                 strcpy(info.name, file.c_str());
                 info.size = write_data(tmp);
                 info.val1 = offset;
-                info.val1 = offset;
+                info.val2 = offset;
                 offset += info.size;
                 write_head(info);
                 head.flush();
