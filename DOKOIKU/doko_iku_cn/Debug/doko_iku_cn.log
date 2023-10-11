@@ -1,6 +1,0 @@
-﻿  dllmain.cpp
-    正在创建库 F:\PROJECT\DOKOIKU\Debug\doko_iku_cn.lib 和对象 F:\PROJECT\DOKOIKU\Debug\doko_iku_cn.exp
-detours.lib(detours.obj) : warning LNK4099: 未找到 PDB“”(使用“detours.lib(detours.obj)”或在“”中寻找)；正在链接对象，如同没有调试信息一样
-detours.lib(modules.obj) : warning LNK4099: 未找到 PDB“”(使用“detours.lib(modules.obj)”或在“”中寻找)；正在链接对象，如同没有调试信息一样
-detours.lib(disasm.obj) : warning LNK4099: 未找到 PDB“”(使用“detours.lib(disasm.obj)”或在“”中寻找)；正在链接对象，如同没有调试信息一样
-  doko_iku_cn.vcxproj -> F:\PROJECT\DOKOIKU\Debug\doko_iku_cn.dll
