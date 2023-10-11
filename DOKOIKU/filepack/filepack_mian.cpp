@@ -24,7 +24,6 @@ namespace work {
     std::fstream data(name_data, 0x20 | 0x02);
     work::entry top{ "DATA$TOP", 0, 0, 1, 0 };
     std::stack<fsystem::path> directories;
-    std::string progm_dir_path;
     std::string output_file_path;
     size_t input_dir_path_length;
     size_t current_offset = 0;
@@ -35,7 +34,6 @@ namespace work {
             directories.push(pathIpt);
             input_dir_path_length = pathIpt.size() + 1;
             output_file_path.assign(pathIpt.append(".pak"));
-            progm_dir_path.assign(pathWk.parent_path().string());
             head.write((const char*)&top, sizeof(entry));
             work::is_warking = true;
         }
