@@ -91,7 +91,7 @@ namespace work {
                 if (file.size() >= 0x30) continue;
                 std::cout << file << "\t: ";
                 ++top.size; // pack entry count
-                std::fstream tmp(e.path(), 0x23);
+                std::fstream tmp(e.path(), 0x21);
                 work::entry info{ 0, 0, 0, 0, 0 };
                 strcpy(info.name, file.c_str());
                 info.size = write_data(tmp);
