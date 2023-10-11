@@ -1,7 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <filesystem>
-#include <time.h>
 #include "file_helper.h"
 
 namespace work {
