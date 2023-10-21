@@ -4,6 +4,50 @@ ipt_text: str = './doko_iku_text'
 org_text: str = './old/txt'
 out_text: str = './new'
 
+def formater(text: str) -> str:
+    min_length: int = 22;
+    beg_symbols: str = "。、？’”，！～】；：）」』"
+    end_symbols: str = "（(「『【‘“…";
+    text = text.replace('\\n　', '')
+    text = text.replace('\\n', '')
+    text = text.replace("/", "／")
+    text = text.replace("{", "｛")
+    text = text.replace("}", "｝")
+    is_talking: bool = False;
+    rtext: str = text
+    if rtext.endswith('@') or rtext.endswith('＠'):
+        rtext = rtext[:-1]
+    if rtext.startswith('「') and rtext.endswith('」'):
+        is_talking = True
+    elif rtext.startswith('『') and rtext.endswith('』'):
+        is_talking = True
+    elif rtext.startswith('“') and rtext.endswith('”'):
+        is_talking = True
+    length: int = len(text)
+    add_new_line: bool = False
+    add_w_count: int = 0
+    can_getc: bool = True
+    index: int = 0
+    result: str = ''
+    char: str = ''
+    while index < length:
+        if can_getc: char = text[index]
+        if not can_getc or (add_new_line and (char not in beg_symbols)):
+            result += '\n'
+            if is_talking: result += '　'
+            add_w_count = int(is_talking)
+            if not can_getc:
+                can_getc = True
+                continue
+        if char !=  "｛" and char !=  "｝" and char != "＠" and char != "@":
+            add_w_count += 1
+        result += char
+        add_new_line = add_w_count >= min_length
+        if add_new_line and char in end_symbols:
+            can_getc = False
+        index += 1
+    return result
+
 def file_read(path: str, encoding: str) -> list[str]:
     result: list[str]
     with open(path, 'r',  encoding=encoding) as f:
@@ -45,6 +89,7 @@ def text_parse(text_array: list[str]) -> list[list[str]]:
                 if len(text) > 0:
                     num = text[0].split('|')[1].strip()
                     text = text[1]
+                    if len(text) > 22: text = formater(text)
                     text = text.replace('｛', '乷')
                     text = text.replace('｝', '乸')
                     text = text.replace('@', '仐')
@@ -81,7 +126,7 @@ def text_com(cn_text: list[list[str]], old_text: list[str]) -> list[str]:
                     if old_text[start - 1 + offset] == None:
                         break
                 pass
-            old_text[start - 1 + offset] = text.replace('\\n','\n');
+            old_text[start - 1 + offset] = text;
             offset += tlen
     result = [text for text in old_text if text != None]
     return result
