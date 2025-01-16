@@ -1,8 +1,32 @@
 import os
 
 ipt_text: str = './doko_iku_text'
-org_text: str = './old/txt'
+org_text: str = './txt'
 out_text: str = './new'
+
+def to_full_char(text: str) -> str:
+    half: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890%&,?;:'\"()"
+    full: str ="ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ１２３４５６７８９０％＆，？；：＇＂（）"
+    for i in range(0, len(half)):
+        text = text.replace(half[i], full[i])
+    return text
+
+def replace_some_char(text: str) -> str:
+    text = text.replace('｛', '乷')
+    text = text.replace('｝', '乸')
+    text = text.replace('@', '仐')
+    text = text.replace('＠', '仐')
+    text = text.replace('「', '乽')
+    text = text.replace('・', '·')
+    text = text.replace('♪', '§')
+    text = text.replace('〜', '～')
+    text = text.replace('−', '—')
+    text = text.replace("⚪", "〇")
+    text = text.replace("❤", "Г")
+    text = text.replace("♡", "Д")
+    text = text.replace('\u200c', '）')
+    text = text.replace('\\n','\n')
+    return text
 
 def formater(text: str) -> str:
     min_length: int = 22;
@@ -55,56 +79,91 @@ def file_read(path: str, encoding: str) -> list[str]:
     return result
 
 def file_write(path: str, data: list[str] ,encoding: str) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w',  encoding=encoding) as f:
         f.write(''.join(data))
     pass
 
-def text_parse(text_array: list[str]) -> list[list[str]]:
-    result: list[list[str | list[list[any]]]] = []
+def text_parse(text_array: list[str]) -> list[list[str|int, str]]:
+    normal_text: list[list[str | list[list[any]]]] = []
     block_text: list[list[any]] = []
-    read_state: bool = False
-    start_num  = ''
+    text_out: list[int, str] = []
+    backlog_write: list[int, str] = []
+    read_state: int = 0
+    # start_num  = ''
     start_line = ''
     for text in text_array:
         text = text.strip()
         try:
-            if not read_state and '#' in text and 'block-start:' in text:
+            if read_state == 0 and '#' in text and 'block-start:' in text:
                 block_start = text.split('#')
-                start_num = block_start[1].strip()
+                # start_num = block_start[1].strip()
                 start_line = block_start[0].split(':')[1].strip()[:-1]
-                read_state = True
+                read_state = 1
                 # print('start: ' + start_line)
-            elif read_state and '#' in text and 'block-end:' in text:
+            elif read_state == 1 and '#' in text and 'block-end:' in text:
                 block_end = text.split('#')
-                end_num = block_end[1].strip()
+                # end_num = block_end[1].strip()
                 end_line = block_end[0].split(':')[1].strip()[:-1]
                 block = f"{start_line}:{end_line}"
-                result.append([block, block_text])
+                normal_text.append([block, block_text])
                 block_text = []
                 start_line = ''
-                start_num  = ''
-                read_state = False
-            elif read_state and '|●●|' in text:
+                # start_num  = ''
+                read_state = 0
+            elif read_state == 0 and '[text-out-start]' in text:
+                read_state = 2
+            elif read_state == 2 and '[text-out-end]' in text:
+                read_state = 0
+            elif read_state == 0 and '[backlog-write-start]' in text:
+                read_state = 3
+            elif read_state == 3 and '[backlog-write-end]' in text:
+                read_state = 0
+            elif read_state == 1 and '|●●|' in text:
                 text = text.split('|●●|')
                 if len(text) > 0:
                     num = text[0].split('|')[1].strip()
                     text = text[1]
-                    if len(text) > 22: text = formater(text)
-                    text = text.replace('｛', '乷')
-                    text = text.replace('｝', '乸')
-                    text = text.replace('@', '仐')
-                    text = text.replace('＠', '仐')
-                    text = text.replace('「', '乽')
-                    text = text.replace('・', '·')
-                    text = text.replace('♪', '§')
-                    text = text.replace('〜', '～')
-                    text = text.replace('−', '—')
+                    # if len(text) > 22: text = formater(text)
+                    # text = text.replace('｛', '乷')
+                    # text = text.replace('｝', '乸')
+                    # text = text.replace('@', '仐')
+                    # text = text.replace('＠', '仐')
+                    # text = text.replace('「', '乽')
+                    # text = text.replace('・', '·')
+                    # text = text.replace('♪', '§')
+                    # text = text.replace('〜', '～')
+                    # text = text.replace('−', '—')
+                    # text = text.replace("⚪", "〇")
+                    # text = text.replace("❤", "Г")
+                    # text = text.replace("♡", "Д")
+                    # text = text.replace('\u200c', '）')
+                    # text = text.replace('\\n','\n')
+                    text = to_full_char(replace_some_char(text))
                     block_text.append([int(num), text + '\n'])
+            elif read_state == 2 and '|●●|' in text:
+                text = text.split('|●●|')
+                if len(text) > 0:
+                    if len(text) == 0:
+                        continue
+                    line = int(text[0].split('|')[1].strip())
+                    text = text[1].strip()
+                    text = to_full_char(replace_some_char(text))
+                    text_out.append([line, text])
+            elif read_state == 3 and '|●●|' in text:
+                text = text.split('|●●|')
+                if len(text) > 0:
+                    line = int(text[0].split('|')[1].strip())
+                    text = text[1].strip()
+                    if len(text) == 0:
+                        continue
+                    text = to_full_char(replace_some_char(text))
+                    backlog_write.append([line, text])
         except: pass
-    return result
+    return [normal_text, text_out, backlog_write]
 
-def text_com(cn_text: list[list[str]], old_text: list[str]) -> list[str]:
-    for block in cn_text:
+def text_com(cn_text:  list[list[str|int, str]], old_text: list[str]) -> list[str]:
+    for block in cn_text[0]:
         if len(block) != 2 : continue
         line_num: list[str] = block[0].split(':')
         start: int = int(line_num[0])
@@ -128,6 +187,16 @@ def text_com(cn_text: list[list[str]], old_text: list[str]) -> list[str]:
                 pass
             old_text[start - 1 + offset] = text;
             offset += tlen
+    for out in cn_text[1]:
+        line: int = out[0]
+        text: str = out[1]
+        org_slit = old_text[line].split(',', 1)
+        old_text[line] = org_slit[0].split(' ')[0] + ' ' + text + ',' + org_slit[1] + '\n'
+    for bbacklog in cn_text[2]:
+        line: int = bbacklog[0]
+        text: str = bbacklog[1]
+        org_slit = old_text[line].split(',', 1)
+        old_text[line] = org_slit[0].split(' ')[0] + ' ' + text + ',' + org_slit[1] + '\n'
     result = [text for text in old_text if text != None]
     return result
 
@@ -135,7 +204,7 @@ if __name__ == '__main__':
     for f in os.listdir(ipt_text):
         old_text_array: list[str] = file_read(f'{org_text}/{f}', 'gbk')
         new_text_array: list[str] = file_read(f'{ipt_text}/{f}', 'utf-8')
-        parsed_text: list[list[str]]  = text_parse(new_text_array)
+        parsed_text:  list[list[str|int, str]]  = text_parse(new_text_array)
         result: list[str] = text_com(parsed_text, old_text_array)
         try:
             file_write(f'{out_text}/{f}', result, 'gbk')
@@ -143,3 +212,8 @@ if __name__ == '__main__':
         except Exception as err:
             print(f"{f}: {str(err)}")
     # print(result)
+    # old_text_array: list[str] = file_read(f'{org_text}/musicmode.txt', 'gbk')
+    # new_text_array: list[str] = file_read(f'{ipt_text}/musicmode.txt', 'utf-8')
+    # parsed_text:  list[list[str|int, str]]  = text_parse(new_text_array)
+    # result: list[str] = text_com(parsed_text, old_text_array)
+    pass
