@@ -93,7 +93,6 @@ def text_parse(text_array: list[str]) -> list[list[str|int, str]]:
     # start_num  = ''
     start_line = ''
     for text in text_array:
-        text = text.strip()
         try:
             if read_state == 0 and '#' in text and 'block-start:' in text:
                 block_start = text.split('#')
@@ -147,14 +146,14 @@ def text_parse(text_array: list[str]) -> list[list[str|int, str]]:
                     if len(text) == 0:
                         continue
                     line = int(text[0].split('|')[1].strip())
-                    text = text[1].strip()
+                    text = text[1].strip(' ').strip('\n')
                     text = to_full_char(replace_some_char(text))
                     text_out.append([line, text])
             elif read_state == 3 and '|●●|' in text:
                 text = text.split('|●●|')
                 if len(text) > 0:
                     line = int(text[0].split('|')[1].strip())
-                    text = text[1].strip()
+                    text = text[1].strip(' ').strip('\n')
                     if len(text) == 0:
                         continue
                     text = to_full_char(replace_some_char(text))
