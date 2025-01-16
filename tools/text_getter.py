@@ -43,9 +43,9 @@ def text_getter(text_array: list[str]) -> str:
             save_line_text += line
             save_line_nums += 1
             if line[-1] == '＠' or line[-1] == '】':
-                result += f'○○|0{save_line_nums}|○○|{save_line_text}\n'
-                result += f'●●|0{save_line_nums}|●●|{save_line_text}\n'
                 if n != len(lines) -1: result += '\n'
+                result += f'○○|0{save_line_nums}|○○|{save_line_text}\n'
+                result += f'●●|0{save_line_nums}|●●|{save_line_text}\n\n'
                 save_line_text = ''
                 save_line_nums = 0
             else:
