@@ -29,7 +29,7 @@ namespace work {
     size_t current_offset = 0;
     bool is_warking = false;
 
-    void init(fsystem::path pathWk, std::string pathIpt) {
+    static void init(fsystem::path pathWk, std::string pathIpt) {
         if (fsystem::is_directory(pathIpt)) {
             directories.push(pathIpt);
             input_dir_path_length = pathIpt.size() + 1;
@@ -42,16 +42,16 @@ namespace work {
         }
     }
 
-    void clear() {
+    static void clear() {
         if (work::data.is_open()) work::data.close();
         if (work::head.is_open()) work::head.close();
         if (fsystem::exists(name_data)) std::remove(name_data);
         if (fsystem::exists(name_head)) std::remove(name_head);
     }
 
-    void pack_completing() {
-        printf("> PACK COMPLETING...\n");
+    static void pack_completing() {
         system("@echo off");
+        printf("> PACK COMPLETING...\n");
         // copy /b head.bin+data.bin newpack.pak
         std::string cmd("copy /b ");
         cmd.append(name_head);
@@ -63,20 +63,20 @@ namespace work {
         work::clear();
     }
 
-    size_t write_data(std::fstream& ifs) {
+    static size_t write_data(std::fstream& ifs) {
         work::data << ifs.rdbuf();
         ifs.seekg(0, std::ios::end);
         return ifs.tellg();
     }
 
-    void write_head(work::entry& info) {
+    static void write_head(work::entry& info) {
         head.seekg(0, std::ios::beg);
         head.write((const char*)&top, sizeof(entry));
         head.seekg(0, std::ios::end);
         head.write((const char*)&info, sizeof(entry));
     }
 
-    size_t add_file_to_pack(fsystem::path dir, size_t offset) {
+    static size_t add_file_to_pack(fsystem::path dir, size_t offset) {
         work::directories.pop();
         size_t length = input_dir_path_length;
         for (const auto& e : diriter(dir)) {
@@ -106,7 +106,7 @@ namespace work {
         return offset;
     }
 
-    void run_starting() {
+    static void run_starting() {
         if (work::is_warking) {
             while (!directories.empty()) {
                 current_offset = add_file_to_pack(directories.top(), current_offset);
