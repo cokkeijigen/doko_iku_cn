@@ -17,18 +17,18 @@ namespace work {
 	files::writebuffer wb;
 	std::filesystem::path wkpath;
 
-	void make_dirs(const std::string& path) {
+	static void make_dirs(const std::string& path) {
 		if (std::filesystem::exists(path)) return;
 		std::filesystem::create_directories(path);
 	}
 
-	std::string dump(std::string& path) {
+	static std::string dump(std::string& path) {
 		if (!rb.load(path.c_str())) return "> PACK LOADING FAILED OR PACK IS EMPTY!";
 		if (memcmp(rb.read(0, 8), "DATA$TOP", 8)) return "> CAN NOT READ THIS PACK!";
 		uint8_t* data = (uint8_t*)rb.read().data();
 		entry* entrys = (entry*)data;
 		size_t fileNum = entrys->size;
-		uint8_t* start = (data + (fileNum * 0x40));
+		uint8_t* start = &data[fileNum * 0x40];
 		for (size_t i = 1; i < fileNum; i++) {
 			entry* info = &entrys[i];
 			std::string file(info->name);
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 		std::string path(argv[1]);
 		work::wkpath.assign(argv[0]);
 		work::wkpath.assign(work::wkpath.parent_path());
-		work::wkpath /= path.substr(path.find_last_of("\\") + 1);
+		work::wkpath /= std::string(path.substr(path.find_last_of("\\") + 1)).append(".unpack");
 		std::cout << work::dump(path) << std::endl;
 		work::rb.clear();
 		work::wb.clear();
