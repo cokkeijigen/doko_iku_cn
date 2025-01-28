@@ -13,23 +13,50 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="detours.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    <Filter Include="console">
+      <UniqueIdentifier>{c51400c4-8626-406b-9be7-88984a2b25fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FontManger">
+      <UniqueIdentifier>{1e920cad-8c07-4bc2-85f6-ae82bafc3e35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="patch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="console.cpp">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="FontManager.cpp">
+      <Filter>FontManger</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="detours.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="patch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="console.hpp">
+      <Filter>console</Filter>
+    </ClInclude>
+    <ClInclude Include="FontManager.hpp">
+      <Filter>FontManger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="detours.lib">
       <Filter>资源文件</Filter>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
