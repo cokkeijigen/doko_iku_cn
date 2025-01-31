@@ -7,7 +7,8 @@
 #include <patch.h>
 #include <console.hpp>
 #include <FontManager.hpp>
-#include <utils.hpp>
+#include <PackManger.hpp>
+#include <Utils.hpp>
 
 namespace Hook {
 
@@ -35,9 +36,14 @@ namespace Hook {
             else if (uChar == 0x8145) uChar = 0xA1A4; // ·
             else if (uChar == 0x8175) uChar = 0xA1B8; // 「
             else if (uChar == 0x8179) uChar = 0xA1BE; // 【
+            else if (auto tmp = Utils::UCharFull2Half(uChar)) {
+                uChar = tmp;
+            }
             ::SelectObject(hdc, Hook::TextCharacterFont);
         }
-        return Patch::Hooker::Call<Hook::GetGlyphOutlineA>(hdc, uChar, fuf, lpgm, cjbf, pvbf, lpmat);
+        auto result = Patch::Hooker::Call<Hook::GetGlyphOutlineA>(hdc, uChar, fuf, lpgm, cjbf, pvbf, lpmat);
+        *reinterpret_cast<int32_t*>(0x4537F8) = lpgm->gmCellIncX + 1;
+        return result;
     }
 
     static int __fastcall ReadGameFile(void* m_this, int edx, const char* name) {
@@ -58,7 +64,6 @@ namespace Hook {
         return result ? result : Patch::Hooker::Call<Hook::ReadGameFile>(m_this, edx, name);
     }
 
-
     inline static bool IsFullScreen(HWND hWnd, RECT rect = {}) {
         int nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
         int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -73,13 +78,13 @@ namespace Hook {
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         if (uMsg == WM_CREATE) {
-            ::SetWindowTextW(hWnd, L"【桐敷学园宣发部】那一天，去往何方 - Ver.1.00");
+            ::SetWindowTextW(hWnd, L"【桐敷学园宣发部】那一天，去往何方 - Ver.1.01");
             if (Hook::FontManager == nullptr && (Hook::FontManager = Utils::FontManager::CreatePtr(hWnd))) {
                 Hook::FontManager->Init(24, Utils::FontManager::NORMAL, L"黑体", 18, 30).Load(".\\save\\chs_font.dat")
                     .OnChanged([](const Utils::FontManager* m_this) -> void {
                         if (Hook::TextCharacterFont) ::DeleteObject(Hook::TextCharacterFont);
                         Hook::TextCharacterFont = m_this->MakeFont();
-                        const auto& data = m_this->GetData();
+                        //const auto& data = m_this->GetData();
                         //console::fmt::write(L"[ChooseFont] size: %d style: 0x%X name: %s\n", data.size, int(data.style), data.name);
                     });
                 Hook::TextCharacterFont = Hook::FontManager->MakeFont();
