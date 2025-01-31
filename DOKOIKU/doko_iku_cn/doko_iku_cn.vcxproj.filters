@@ -16,7 +16,7 @@
     <Filter Include="console">
       <UniqueIdentifier>{c51400c4-8626-406b-9be7-88984a2b25fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="FontManger">
+    <Filter Include="Utils">
       <UniqueIdentifier>{1e920cad-8c07-4bc2-85f6-ae82bafc3e35}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -31,7 +31,7 @@
       <Filter>console</Filter>
     </ClCompile>
     <ClCompile Include="FontManager.cpp">
-      <Filter>FontManger</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,14 +41,17 @@
     <ClInclude Include="patch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="utils.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="console.hpp">
       <Filter>console</Filter>
     </ClInclude>
     <ClInclude Include="FontManager.hpp">
-      <Filter>FontManger</Filter>
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="PackManger.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.hpp">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
