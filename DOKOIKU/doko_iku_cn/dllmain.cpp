@@ -90,7 +90,7 @@ namespace Hook {
             }
         }
         else if (uMsg == WM_SIZE && Hook::FontManager) {
-            FontManager->UpdateDisplayState();
+            if (Hook::FontManager) FontManager->UpdateDisplayState();
         }
         else if (uMsg == WM_COMMAND && LOWORD(wParam) == static_cast<uint16_t>(114514)) {
             if (Hook::FontManager) Hook::FontManager->ChooseFont();
