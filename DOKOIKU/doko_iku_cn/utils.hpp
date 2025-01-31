@@ -78,7 +78,7 @@ namespace Utils {
         case 0x816A: return 0x29; // '乯' -> ')'
         case 0x8144: return 0x2E; // '丏' -> '.'
         case 0x8149: return 0x21; // '両' -> '!'
-        default: return NULL;
+        default: return uChar;
         }
     }
 }
