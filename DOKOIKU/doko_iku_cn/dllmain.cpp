@@ -33,12 +33,10 @@ namespace Hook {
         else {
             // 一些字符的替换
             if (uChar == 0x8140) uChar = 0xA1A1; // 全角空格
-            else if (uChar == 0x8145) uChar = 0xA1A4; // ·
-            else if (uChar == 0x8175) uChar = 0xA1B8; // 「
-            else if (uChar == 0x8179) uChar = 0xA1BE; // 【
-            else if (auto tmp = Utils::UCharFull2Half(uChar)) { // 替换半角字符
-                uChar = tmp;
-            }
+            else if (uChar == 0x8145) uChar = 0xA1A4;  // ·
+            else if (uChar == 0x8175) uChar = 0xA1B8;  // 「
+            else if (uChar == 0x8179) uChar = 0xA1BE;  // 【
+            else uChar = Utils::UCharFull2Half(uChar); // 替换半角字符
             ::SelectObject(hdc, Hook::TextCharacterFont);
         }
         auto result = Patch::Hooker::Call<Hook::GetGlyphOutlineA>(hdc, uChar, fuf, lpgm, cjbf, pvbf, lpmat);
