@@ -177,7 +177,8 @@
     <ClInclude Include="detours.h" />
     <ClInclude Include="FontManager.hpp" />
     <ClInclude Include="patch.h" />
-    <ClInclude Include="utils.hpp" />
+    <ClInclude Include="PackManger.hpp" />
+    <ClInclude Include="Utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="detours.lib" />
