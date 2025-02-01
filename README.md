@@ -75,4 +75,4 @@ static DWORD WINAPI GetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuf, LPGLYPHMETRI
 ### 半角字符显示效果图：
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/test1.png)
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/test2.png)<br>
-**非常奈斯** ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/w.jpg)
+**非常奈斯（）** ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/w.jpg)
