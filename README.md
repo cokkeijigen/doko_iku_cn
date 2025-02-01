@@ -23,8 +23,8 @@ struct Entry {
     int32_t value2;
 };
 struct PakHeader {
-    Entry TOP;
-    Entry DATA[NULL];
+    Entry TopData;
+    Entry Files[NULL];
 };
 ```
 **解包：[PackManger.hpp](https://github.com/cokkeijigen/doko_iku_cn/blob/master/DOKOIKU/doko_iku_cn/PackManger.hpp)、[unpack_main.cpp](https://github.com/cokkeijigen/doko_iku_cn/blob/master/DOKOIKU/unpack/unpack_main.cpp)**<br>
