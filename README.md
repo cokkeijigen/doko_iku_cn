@@ -7,7 +7,7 @@
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/file_head.png)<br>
 **这是一个很经典的数据结构，头部存储文件信息，后面接着文件数据。通过观察头部的数据规律，很容易发现一个`entry`是`0x40`个字节，其中`name`占了`0x30`个字节，然后到`offset`和`length`为`int32`，~~至于为什么会有两个`offset`呢？我猜的我也不知道~~。<br><br>**
 **然后你可能会发现每个封包的第0x00个引索`entry`的`name`都是`DATA$TOP`，这时候就能进行一个大胆的猜测，它的`length`有没有可能是用来记录着所有`entry`的数量？那么如何进行一个简单的验证呢？<br><br>**
-**已知一个`entry`是`0x40`个字节，那么可以通过`DATA$TOP`的`length`乘以`0x40`计算出来的地址，跳转到那个位置去看看。如上图`DATA$TOP`的`length`为`0x9A1`，乘以`0x40`得到`0x26840`，跳转过去看看：**
+**已知一个`entry`是`0x40`个字节，那么可以通过`DATA$TOP`的`length`乘以`0x40`计算出来第一个文件的地址，跳转到那个位置去看看。如上图`DATA$TOP`的`length`为`0x9A1`，乘以`0x40`得到`0x26840`，跳转过去看看：**
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/file_data.png)<br>
 **可以看到wav文件的magic了，这时候基本就能证实刚才的猜测。<br><br>如果还不太确定，可以从`0x26840`这个位置开始使用自定义选块，大小填写第`0x01`的`entry`的`length`也就是`0x6A9A`**<br>
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/file_data1.png)<br>
