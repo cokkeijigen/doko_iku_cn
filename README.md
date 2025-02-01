@@ -44,18 +44,19 @@ struct PakHeader {
 ```cpp
 // dllmain.cpp
 static DWORD WINAPI GetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuf, LPGLYPHMETRICS lpgm, DWORD cjbf, LPVOID pvbf, MAT2* lpmat) {
+    auto result = static_cast<DWORD>(GDI_ERROR);
     if (uChar == 0xA1EC) {
         //uChar = 0x81F4; // 替换♪
         ::SelectObject(hdc, Hook::DefualtSymbolFont);
-        return ::GetGlyphOutlineW(hdc, L'♪', fuf, lpgm, cjbf, pvbf, lpmat);
+        result = ::GetGlyphOutlineW(hdc, L'♪', fuf, lpgm, cjbf, pvbf, lpmat);
     }
     else if (uChar == 0xA7A4) {
         ::SelectObject(hdc, Hook::DefualtSymbolFont);
-        return ::GetGlyphOutlineW(hdc, L'❤', fuf, lpgm, cjbf, pvbf, lpmat);
+        result = ::GetGlyphOutlineW(hdc, L'❤', fuf, lpgm, cjbf, pvbf, lpmat);
     }
     else if (uChar == 0xA7A5) {
         ::SelectObject(hdc, Hook::DefualtSymbolFont);
-        return ::GetGlyphOutlineW(hdc, L'♡', fuf, lpgm, cjbf, pvbf, lpmat);
+        result = ::GetGlyphOutlineW(hdc, L'♡', fuf, lpgm, cjbf, pvbf, lpmat);
     }
     else {
         // 一些字符的替换
@@ -66,7 +67,7 @@ static DWORD WINAPI GetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuf, LPGLYPHMETRI
         else uChar = Utils::UCharFull2Half(uChar); // 替换半角字符
         ::SelectObject(hdc, Hook::TextCharacterFont);
     }
-    auto result = Patch::Hooker::Call<Hook::GetGlyphOutlineA>(hdc, uChar, fuf, lpgm, cjbf, pvbf, lpmat);
+    result = Patch::Hooker::Call<Hook::GetGlyphOutlineA>(hdc, uChar, fuf, lpgm, cjbf, pvbf, lpmat);
     *reinterpret_cast<int32_t*>(0x4537F8) = lpgm->gmCellIncX + 1; // 设置字符宽度，要半宽显示半角字符这点很重要！
     return result;
 }
