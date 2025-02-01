@@ -472,12 +472,12 @@ namespace Utils {
 	}
 
 	auto FontManager::MessageLoop() const -> void {
-		std::thread([](MSG msg = { NULL }) {
-			while (::GetMessageW(&msg, NULL, 0, 0) > 0) {
+		std::thread([](HWND hwnd,MSG msg = { NULL }) {
+			while (::GetMessageW(&msg, hwnd, 0, 0) > 0) {
 				::TranslateMessage(&msg);
 				::DispatchMessageW(&msg);
 			}
-		}).detach();
+		}, this->m_hwnd).detach();
 	}
 
 	auto FontManager::ChooseFont() -> FontManager& {
