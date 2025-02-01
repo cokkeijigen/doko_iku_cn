@@ -38,9 +38,9 @@ struct PakHeader {
 `俙俛俠俢俤俥俧俫俬俰俲俴俵俶俷俹俻俼俽俿倀倁倂倃倄倅倎倐們倓倕倖倗倛倝倞倠倢倣値倧倫倯倰倱倲倳倴倵倶倷倸侾俀俁係俆俇俈俉俋侽亾仌丆丠丟丗鶹鶺乮乯丏両`
 对应字符`ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ１２３４５６７８９０％＆，？；：＇＂（）．！`。<br>
 这些字符在中文中基本不可能用得到，用来做替换是最合适不过了。我们还可以举一反三，GBK编码的脚本也能支持显示一些特殊符号。<br>
-不过不要急，游戏的字符宽度是固定，我通过ida的反编译分析，找到这个宽度就存储在`dword_4537F8`这个全局变量
+**不过不要急，游戏的字符宽度是固定，需要改成动态宽度，才能正常显示半角字符，不然就算是半角字符也会占用全角的宽度。<br>那怎么改了？我通过ida的反编译分析，已经找到了这个宽度就存储在`dword_4537F8`这个全局变中：** <br>
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/ida_code.png) <br>
-我们只需要在每次调用`GetGlyphOutlineA`后设置字符宽度，于是我们最终得到以下代码
+**我们只需要在每次调用`GetGlyphOutlineA`后设置字符宽度，于是我们最终得到以下代码：**
 ```cpp
 // dllmain.cpp
 static DWORD WINAPI GetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuf, LPGLYPHMETRICS lpgm, DWORD cjbf, LPVOID pvbf, MAT2* lpmat) {
@@ -71,8 +71,8 @@ static DWORD WINAPI GetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuf, LPGLYPHMETRI
     return result;
 }
 ```
-详细：[dllmain.cpp](https://github.com/cokkeijigen/doko_iku_cn/blob/main/DOKOIKU/doko_iku_cn/dllmain.cpp)、[utils.hpp](https://github.com/cokkeijigen/doko_iku_cn/blob/main/DOKOIKU/doko_iku_cn/utils.hpp)
----
+**详细：[dllmain.cpp](https://github.com/cokkeijigen/doko_iku_cn/blob/main/DOKOIKU/doko_iku_cn/dllmain.cpp)、[utils.hpp](https://github.com/cokkeijigen/doko_iku_cn/blob/main/DOKOIKU/doko_iku_cn/utils.hpp)。** <br>
+### 半角字符显示效果图：
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/test1.png)
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/test2.png)<br>
 **非常奈斯** ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/w.jpg)
