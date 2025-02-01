@@ -39,8 +39,8 @@ namespace Hook {
             else if (uChar == 0x8179) uChar = 0xA1BE;  // 【
             else uChar = Utils::UCharFull2Half(uChar); // 替换半角字符
             ::SelectObject(hdc, Hook::TextCharacterFont);
+            result = Patch::Hooker::Call<Hook::GetGlyphOutlineA>(hdc, uChar, fuf, lpgm, cjbf, pvbf, lpmat);
         }
-        result = Patch::Hooker::Call<Hook::GetGlyphOutlineA>(hdc, uChar, fuf, lpgm, cjbf, pvbf, lpmat);
         *reinterpret_cast<int32_t*>(0x4537F8) = lpgm->gmCellIncX + 1; // 设置字符宽度，要半宽显示半角字符这点很重要！
         return result;
     }
