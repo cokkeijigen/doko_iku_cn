@@ -9,9 +9,9 @@
 **然后你可能会发现每个封包的第0x00个引索`entry`的`name`都是`DATA$TOP`，这时候就能进行一个大胆的猜测，它的`length`有没有可能是用来记录着所有`entry`的数量？那么如何进行一个简单的验证呢？<br><br>**
 **已知一个`entry`是`0x40`个字节，那么可以通过`DATA$TOP`的`length`乘以`0x40`计算出来第一个文件的地址，跳转到那个位置去看看。如上图`DATA$TOP`的`length`为`0x9A1`，乘以`0x40`得到`0x26840`，跳转过去看看：**
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/file_data.png)<br>
-**可以看到wav文件的magic了，这时候基本就能证实刚才的猜测。<br><br>如果还不太确定，可以从`0x26840`这个位置开始使用自定义选块，大小填写第`0x01`的`entry`的`length`也就是`0x6A9A`**<br>
+**可以看到wav文件的magic了，这时候基本就能证实刚才的猜测。<br><br>如果还不太确定，可以从`0x26840`这个位置开始使用`winhex`右键->`定义选块`，`大小`填写第`0x01`的`entry`的`length`也就是`0x6A9A`。** <br>
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/file_data1.png)<br>
-**然后右键`复制选块`->`至新文件`，文件名就为`-select.wav`，然后保存，最后在用音乐播放器打开，如果能正常播放那就是再次证实了**
+**然后右键`复制选块`->`至新文件`，文件名就为`-select.wav`，然后保存，最后在用音乐播放器打开，如果能正常播放那就是再次证实了。**
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/main/file_data2.png)<br>
 **到这里你已经学会了手动解包了，接下来只需要写一个批处理的程序即可。** <br>
 ```cpp
