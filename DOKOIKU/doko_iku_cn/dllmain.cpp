@@ -12,9 +12,9 @@
 
 namespace Hook {
 
-    static std::unique_ptr<Utils::FontManager> FontManager { nullptr };
     static HFONT DefualtSymbolFont{ NULL };
     static HFONT TextCharacterFont{ NULL };
+    static std::unique_ptr<Utils::FontManager> FontManager { nullptr };
 
     static DWORD WINAPI GetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuf, LPGLYPHMETRICS lpgm, DWORD cjbf, LPVOID pvbf, MAT2* lpmat) {
         auto result = static_cast<DWORD>(GDI_ERROR);
@@ -38,10 +38,21 @@ namespace Hook {
             else if (uChar == 0x8175) uChar = 0xA1B8;  // 「
             else if (uChar == 0x8179) uChar = 0xA1BE;  // 【
             else uChar = Utils::UCharFull2Half(uChar); // 替换半角字符
+            char text[3]{ char(uChar& 0xFF), char(uChar>>8)};
+            //console::fmt::write("uChar: %s \n", text);
             ::SelectObject(hdc, Hook::TextCharacterFont);
             result = Patch::Hooker::Call<Hook::GetGlyphOutlineA>(hdc, uChar, fuf, lpgm, cjbf, pvbf, lpmat);
         }
         *reinterpret_cast<int32_t*>(0x4537F8) = lpgm->gmCellIncX + 1; // 设置字符宽度，要半宽显示半角字符这点很重要！
+        return result;
+    }
+
+    static int SetLineBreak() {
+        auto&& result = reinterpret_cast<decltype(Hook::SetLineBreak)*>(0x40B2B0)();
+        *reinterpret_cast<int32_t*>(0x6C1B50) = 0x18; // 设置换行缩进宽度
+        if (*reinterpret_cast<uint16_t*>(0x6C7938) == 0x7581) {
+            *reinterpret_cast<int32_t*>(0x6C1B50) += *reinterpret_cast<int32_t*>(0x4537F8);
+        }
         return result;
     }
 
@@ -99,7 +110,6 @@ namespace Hook {
         }
         return Patch::Hooker::Call<Hook::WndProc>(hWnd, uMsg, wParam, lParam);
     }
-
 }
 
 extern "C"  {
@@ -126,6 +136,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         Patch::Mem::MemWriteImpl(0x42906A, uintptr_t(&newAsm), sizeof(newAsm) - 1); // AppendMenu
         uint8_t asmNew[] = { 0xB9, 0x52, 0xBF, 0x01, 0x00, 0x90 }; // mov ecx, 0x1BF52 (114514); nop
         Patch::Mem::MemWriteImpl(0x428FC9, uintptr_t(&asmNew), sizeof(asmNew) - 0); // RemoveMenu
+        auto addr = reinterpret_cast<uintptr_t>(&Hook::SetLineBreak) - 0x433DB3 - 0x05;
+        Patch::Mem::MemWriteImpl(0x433DB4, uintptr_t(&addr), 0x04); // hook自动换行，没卵用？孩子不懂事hook着玩
+        
         Patch::Hooker::Commit();
     }
     return TRUE;
