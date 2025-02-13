@@ -62,11 +62,9 @@ namespace Utils {
 
 		inline auto GetTextW() const -> std::wstring {
 			if (int length = ::GetWindowTextLengthW(this->m_hwnd); length != 0) {
-				wchar_t* buffer = new wchar_t[length + 1];
-				::GetWindowTextW(this->m_hwnd, buffer, length + 1);
-				auto && reuslt = std::wstring(buffer, length);
-				delete[] buffer;
-				return reuslt;
+				auto&& result = std::wstring(length, 0);
+				::GetWindowTextW(this->m_hwnd, const_cast<wchar_t*>(result.c_str()), length + 1);
+				return result;
 			}
 			return std::wstring(L"");
 		}
