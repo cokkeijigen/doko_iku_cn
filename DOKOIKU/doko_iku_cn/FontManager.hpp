@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifdef SendMessage
 #undef SendMessage
 #endif
@@ -241,34 +241,34 @@ namespace Utils {
 
 				inline Button1() : Button() {}
 				inline Button1(HWND parent, HFONT font, HINSTANCE hInstance) :
-					Button(L"³£¹æ", 25, 20, parent, font, hInstance) {
+					Button(L"å¸¸è§„", 25, 20, parent, font, hInstance) {
 				}
 			};
 
-			class Button2 : public Button<Button1, static_cast<uint16_t>(0x00F0)> {
+			class Button2 : public Button<Button2, static_cast<uint16_t>(0x00F0)> {
 				friend StyGroupBox;
 
 				inline Button2() : Button() {}
 				inline Button2(HWND parent, HFONT font, HINSTANCE hInstance) :
-					Button(L"¼Ó´Ö", 25, 46, parent, font, hInstance) {
+					Button(L"åŠ ç²—", 25, 46, parent, font, hInstance) {
 				}
 			};
 
-			class Button3 : public Button<Button1, static_cast<uint16_t>(0xFF00)> {
+			class Button3 : public Button<Button3, static_cast<uint16_t>(0xFF00)> {
 				friend StyGroupBox;
 				
 				inline Button3() : Button() {}
 				inline Button3(HWND parent, HFONT font, HINSTANCE hInstance) :
-					Button(L"ÇãÐ±", 135, 20, parent, font, hInstance) {
+					Button(L"å€¾æ–œ", 135, 20, parent, font, hInstance) {
 				}
 			};
 
-			class Button4 : public Button<Button1, static_cast<uint16_t>(0x0FF0)> {
+			class Button4 : public Button<Button4, static_cast<uint16_t>(0x0FF0)> {
 				friend StyGroupBox;
 				
 				inline Button4() : Button() {}
 				inline Button4(HWND parent, HFONT font, HINSTANCE hInstance) :
-					Button(L"Ð±´Ö", 135, 46, parent, font, hInstance) {
+					Button(L"æ–œç²—", 135, 46, parent, font, hInstance) {
 				}
 			};
 
@@ -293,14 +293,14 @@ namespace Utils {
 		class ResetButton: public ButtonBase<StyGroupBox, static_cast<uint16_t>(0x4000)> {
 			friend FontManager;
 			inline ResetButton(HWND parent, HFONT font, HINSTANCE hInstance): ButtonBase(
-				L"Ä¬ÈÏÖµ", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 
+				L"é»˜è®¤å€¼", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 
 				80, 28, 323, 280, parent, font, hInstance) {}
 		};
 		
 		class ApplyButton: public ButtonBase<StyGroupBox, static_cast<uint16_t>(0x5000)> {
 			friend FontManager;
 			inline ApplyButton(HWND parent, HFONT font, HINSTANCE hInstance):ButtonBase(
-				L"Ó¦¡¡ÓÃ", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+				L"åº”ã€€ç”¨", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 				80, 28, 425, 280, parent, font, hInstance) {}
 		};
 
@@ -347,7 +347,7 @@ namespace Utils {
 		bool m_DataUpdate = false;
 
 		FontManager(HWND parent, HFONT font, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) : WindowBase(
-			WS_EX_LTRREADING, FontManager::ManagerClassName, L"×ÖÌåÉèÖÃ", WS_SYSMENU | WS_CAPTION, NULL,
+			WS_EX_LTRREADING, FontManager::ManagerClassName, L"å­—ä½“è®¾ç½®", WS_SYSMENU | WS_CAPTION, NULL,
 			NULL, 550, 375, NULL, NULL, NULL, hInstance), m_hFont(font), m_StyGroupBox(this, font, hInstance),
 			m_ApplyButton(this->m_hwnd, font, hInstance), m_ResetButton(this->m_hwnd, font, hInstance),
 			m_FszGroupBox(this, font, hInstance), m_FontListBox(this, font, hInstance), m_Parent(parent)
