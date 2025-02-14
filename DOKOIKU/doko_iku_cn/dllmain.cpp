@@ -142,14 +142,15 @@ namespace Hook {
 }
 
 extern "C"  {
+    
     __declspec(dllexport) const char* _patch_by_iTsukezigen_(void) {
         return "https://github.com/cokkeijigen/doko_iku_cn";
     }
-}
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
-    if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-        Hook::Init();
+    BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
+        if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
+            Hook::Init();
+        }
+        return TRUE;
     }
-    return TRUE;
 }
