@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <string>
 #include <thread>
@@ -10,6 +10,8 @@
 #pragma comment(lib, "Comctl32.lib")
 
 namespace Utils {
+
+	static auto _OS_VERSION_ = ::GetVersion();
 
 	auto CALLBACK FontManager::FontListBox::EnumProc(ENUMLOGFONTEX* lpelfe, NEWTEXTMETRICEX* lpntme, DWORD fontType, LPARAM lParam) -> int {
 		if (fontType == TRUETYPE_FONTTYPE && lpelfe->elfLogFont.lfFaceName[0] != 0x40) {
@@ -69,14 +71,14 @@ namespace Utils {
 				m_this->lastData = m_this->currentData;
 				if (m_this->m_Callback) m_this->m_Callback(m_this);
 				m_this->m_DataUpdate = false;
-				m_this->SetTextW(L"×ÖÌåÉèÖÃ");
+				m_this->SetTextW(L"å­—ä½“è®¾ç½®");
 			}
 
 			break;
 		}
 		case WM_CLOSE: {
 			if (m_this->m_DataUpdate) {
-				if (::MessageBoxW(m_this->m_hwnd, L"ÊÇ·ñÓ¦ÓÃµ±Ç°×ÖÌåÑùÊ½£¿", L"*Î´Ó¦ÓÃ", MB_YESNO) != IDYES) {
+				if (::MessageBoxW(m_this->m_hwnd, L"æ˜¯å¦åº”ç”¨å½“å‰å­—ä½“æ ·å¼ï¼Ÿ", L"*æœªåº”ç”¨", MB_YESNO) != IDYES) {
 					m_this->currentData = m_this->lastData;
 				}
 				else if (m_this->m_Callback) {
@@ -98,10 +100,10 @@ namespace Utils {
 
 
 	auto CALLBACK FontManager::FszGroupBox::Editor::EditorProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) -> LRESULT {
-		if (uMsg == WM_CHAR && wParam == 0x01) { // ctrl + a È«Ñ¡ÎÄ±¾¿òÄÚÈÝ
+		if (uMsg == WM_CHAR && wParam == 0x01) { // ctrl + a å…¨é€‰æ–‡æœ¬æ¡†å†…å®¹
 			return ::SendMessageW(hwnd, EM_SETSEL, 0, -1);
 		}
-		if (uMsg == WM_CHAR && wParam == 0x0D) { // °´ÏÂ»Ø³µ¼üÊÂ¼þ£¬½«µ±Ç°×ÖÌåÉèÖÃËÑË÷½á¹ûµÄµÚÒ»¸ö½á¹û
+		if (uMsg == WM_CHAR && wParam == 0x0D) { // æŒ‰ä¸‹å›žè½¦é”®äº‹ä»¶ï¼Œå°†å½“å‰å­—ä½“è®¾ç½®æœç´¢ç»“æžœçš„ç¬¬ä¸€ä¸ªç»“æžœ
 			if (auto text = m_this->GetTextW(); text.empty()) {
 				m_this->SetTextW(m_this->manager->currentData.name);
 				m_this->manager->UpdateDisplay(true);
@@ -228,7 +230,7 @@ namespace Utils {
 	}
 
 	inline FontManager::FszGroupBox::FszGroupBox(FontManager* manager, HFONT font, HINSTANCE hInstance) : WindowBase(
-		WS_EX_LTRREADING, L"BUTTON", L"×ÖÌå£¦´óÐ¡", WS_VISIBLE | WS_CHILD | BS_GROUPBOX | BS_CENTER, 305, 75, 220, 115,
+		WS_EX_LTRREADING, L"BUTTON", L"å­—ä½“ï¼†å¤§å°", WS_VISIBLE | WS_CHILD | BS_GROUPBOX | BS_CENTER, 305, 75, 220, 115,
 		manager->m_hwnd, hInstance), nameEditor(manager, this->m_hwnd, font, hInstance), trackBar(this->m_hwnd, hInstance),
 		sizeText(this->m_hwnd, font, hInstance), manager(manager)
 	{
@@ -280,7 +282,7 @@ namespace Utils {
 	}
 
 	inline FontManager::StyGroupBox::StyGroupBox(FontManager* manager, HFONT font, HINSTANCE hInstance): WindowBase(
-		WS_EX_LTRREADING, L"BUTTON", L"×ÖÌåÑùÊ½", WS_VISIBLE | WS_CHILD | BS_GROUPBOX | BS_CENTER,
+		WS_EX_LTRREADING, L"BUTTON", L"å­—ä½“æ ·å¼", WS_VISIBLE | WS_CHILD | BS_GROUPBOX | BS_CENTER,
 		305, 195, 220, 75, manager->m_hwnd, hInstance), button1(this->m_hwnd, font, hInstance),
 		button2(this->m_hwnd, font, hInstance), button3(this->m_hwnd, font, hInstance),
 		button4(this->m_hwnd, font, hInstance), manager(manager)
@@ -352,7 +354,7 @@ namespace Utils {
 	auto FontManager::Create(HWND parent, HINSTANCE hInstance) -> FontManager {
 		return FontManager::Create(parent, ::CreateFontW(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE,
 			FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, 
-			DEFAULT_PITCH | FF_DONTCARE, L"Î¢ÈíÑÅºÚ"), hInstance);
+			DEFAULT_PITCH | FF_DONTCARE, L"å¾®è½¯é›…é»‘"), hInstance);
 	}
 
 	auto FontManager::CreatePtr(HWND parent, HFONT hFont, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
@@ -366,7 +368,7 @@ namespace Utils {
 	auto FontManager::CreatePtr(HWND parent, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
 		return FontManager::CreatePtr(parent, ::CreateFontW(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE,
 			FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
-			DEFAULT_PITCH | FF_DONTCARE, L"Î¢ÈíÑÅºÚ"), hInstance);
+			DEFAULT_PITCH | FF_DONTCARE, L"å¾®è½¯é›…é»‘"), hInstance);
 	}
 
 	auto FontManager::Init(Data defaultData, int minSize, int maxSize) -> FontManager& {
@@ -463,11 +465,15 @@ namespace Utils {
 			y = ((windowRect.top + windowRect.bottom) / 2) - (height / 2);
 		}
 		::SetWindowPos(this->m_hwnd, topMost ? HWND_TOPMOST: HWND_NOTOPMOST, x, y, NULL, NULL, SWP_NOSIZE | SWP_NOACTIVATE);
+		if(topMost) ::EnableWindow(this->m_Parent.m_hwnd, FALSE);
 		::SetForegroundWindow(this->m_hwnd);
 		return ::ShowWindow(this->m_hwnd, SW_SHOW);
 	}
 
 	auto FontManager::HideWindow() const-> BOOL {
+		if (!::IsWindowEnabled(this->m_Parent.m_hwnd)) {
+			::EnableWindow(this->m_Parent.m_hwnd, TRUE);
+		}
 		return ::ShowWindow(m_this->m_hwnd, SW_HIDE);
 	}
 
@@ -518,7 +524,7 @@ namespace Utils {
 
 
 	auto FontManager::InitDisplay(SIZE size, PAINTSTRUCT ps) -> FontManager& {
-		static constexpr wchar_t text[]{ L"¡ùÇëÊÊµ±µ÷Õû×ÖÌå´óÐ¡£¬¹ý´ó¹ýÐ¡¶¼¿ÉÄÜ»áµ¼ÖÂÓÎÏ·ÄÚÏÔÊ¾Òì³£¡£" };
+		static constexpr wchar_t text[]{ L"â€»è¯·é€‚å½“è°ƒæ•´å­—ä½“å¤§å°ï¼Œè¿‡å¤§è¿‡å°éƒ½å¯èƒ½ä¼šå¯¼è‡´æ¸¸æˆå†…æ˜¾ç¤ºå¼‚å¸¸ã€‚" };
 		HDC hdc = ::BeginPaint(this->m_hwnd, &ps);
 		HBRUSH brush = ::CreateSolidBrush(RGB(232, 234, 240));
 		::FillRect(hdc, &ps.rcPaint, brush);
@@ -535,8 +541,8 @@ namespace Utils {
 
 	auto FontManager::UpdateDisplay(bool state, SIZE size, PAINTSTRUCT ps) -> FontManager& {
 		static const RECT rect{ 0, 0, 550, 70 };
-		static constexpr wchar_t text[]{ L"ÕâÊÇÒ»¶Î²âÊÔ×ÖÌåÑùÊ½µÄÎÄ×Ö¡£" };
-		this->SetTextW(state ? L"×ÖÌåÉèÖÃ *Î´Ó¦ÓÃ" : L"×ÖÌåÉèÖÃ");
+		static constexpr wchar_t text[]{ L"è¿™æ˜¯ä¸€æ®µæµ‹è¯•å­—ä½“æ ·å¼çš„æ–‡å­—ã€‚" };
+		this->SetTextW(state ? L"å­—ä½“è®¾ç½® *æœªåº”ç”¨" : L"å­—ä½“è®¾ç½®");
 		::InvalidateRect(this->m_hwnd, &rect, TRUE);
 		HDC hdc = ::BeginPaint(this->m_hwnd, &ps);
 		::FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
@@ -569,6 +575,7 @@ namespace Utils {
 		if (this->IsWindowVisible()) {
 			this->ShowWindow(this->IsFullScreen());
 		}
+		
 		return *this;
 	}
 }
