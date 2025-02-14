@@ -575,7 +575,6 @@ namespace Utils {
 		if (this->IsWindowVisible()) {
 			this->ShowWindow(this->IsFullScreen());
 		}
-		
 		return *this;
 	}
 }
