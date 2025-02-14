@@ -4,10 +4,13 @@ namespace Utils {
 
     static DWORD OsCurrentCodePage{ ::GetACP() };
 
-    static std::wstring ConvertToUTF16(std::string_view str, uint32_t cdpg = 936) {
-        auto&& result = std::wstring(::MultiByteToWideChar(cdpg, 0, str.data(), -1, 0, 0), 0);
-        ::MultiByteToWideChar(cdpg, 0, str.data(), -1, const_cast<wchar_t*>(result.c_str()), result.size());
-        return result;
+    static std::wstring ConvertToUTF16(const char* str, uint32_t cdpg = 936) {
+        if(str) {
+            auto&& result = std::wstring(::MultiByteToWideChar(cdpg, 0, str, -1, 0, 0), 0);
+            ::MultiByteToWideChar(cdpg, 0, str, -1, const_cast<wchar_t*>(result.c_str()), result.size());
+            return result;
+        }
+        return L"";
     }
 
     static UINT UCharFull2Half(UINT uChar) {
