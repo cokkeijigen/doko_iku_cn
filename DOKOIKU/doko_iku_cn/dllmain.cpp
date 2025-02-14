@@ -114,12 +114,18 @@ namespace Hook {
         return ::ModifyMenuW(hMnu, uPosition, uFlags, uIDNewItem, Utils::ConvertToUTF16(lpNewItem).c_str());
     }
 
+    static int WINAPI MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
+        //console::fmt::write<936>("[MessageBoxA] %s %s\n", lpText, lpCaption);
+        return ::MessageBoxW(hWnd, Utils::ConvertToUTF16(lpText).c_str(), Utils::ConvertToUTF16(lpCaption).c_str(), uType);
+    }
+
     inline static void Init() {
         Patch::Hooker::Begin();
         //console::make();
         if (Utils::OsCurrentCodePage != 936) {
             Patch::Hooker::Add<Hook::ModifyMenuA>(::ModifyMenuA);
             Patch::Hooker::Add<Hook::AppendMenuA>(::AppendMenuA);
+            Patch::Hooker::Add<Hook::MessageBoxA>(::MessageBoxA);
         }
         Patch::Hooker::Add<Hook::GetGlyphOutlineA>(::GetGlyphOutlineA);
         Patch::Hooker::Add<Hook::WndProc>(reinterpret_cast<void*>(0x425F90));
