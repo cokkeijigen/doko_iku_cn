@@ -19,7 +19,7 @@
 #endif
 
 namespace Utils {
-	
+
 	template<typename T, uint16_t idc> class WindowBase {
 		friend T;
 	protected:
