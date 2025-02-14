@@ -1,8 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
-#include <thread>
-#include <unordered_map>
-#include <atomic>
+﻿#include <iostream>
 #include <windows.h>
 #include <patch.h>
 #include <console.hpp>
@@ -11,7 +7,7 @@
 #include <Utils.hpp>
 
 namespace Hook {
-
+    
     static HFONT DefualtSymbolFont{ NULL };
     static HFONT TextCharacterFont{ NULL };
     static std::unique_ptr<Utils::FontManager> FontManager { nullptr };
@@ -74,30 +70,26 @@ namespace Hook {
         return result ? result : Patch::Hooker::Call<Hook::ReadGameFile>(m_this, edx, name);
     }
 
-    inline static bool IsFullScreen(HWND hWnd, RECT rect = {}) {
-        int nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
-        int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
-        LONG lStyle = ::GetWindowLongW(hWnd, GWL_STYLE);
-        ::GetWindowRect(hWnd, &rect);
-        return (lStyle & WS_POPUP) == WS_POPUP &&
-            rect.left <= 0 && rect.top <= 0 &&
-            rect.right >= nScreenWidth &&
-            rect.bottom >= nScreenHeight;
-    }
-
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-
+        
         if (uMsg == WM_CREATE) {
-            ::SetWindowTextW(hWnd, L"【桐敷学园宣发部】那一天，去往何方 - Ver.1.01");
+            static const auto nTitle { u8"【桐敷学园宣发部】那一天，去往何方 - Ver.1.01" };
+            if (CP_UTF8 == Utils::OsCurrentCodePage) {
+                ::SetWindowTextA(hWnd, nTitle);
+            }
+            else {
+                ::SetWindowTextW(hWnd, Utils::ConvertToUTF16(nTitle, CP_UTF8).c_str());
+            }
             if (Hook::FontManager == nullptr && (Hook::FontManager = Utils::FontManager::CreatePtr(hWnd))) {
+                static const auto UseCharSet{ static_cast<DWORD>(Utils::OsCurrentCodePage == 936 ? ANSI_CHARSET : 0x86) };
                 Hook::FontManager->Init(24, Utils::FontManager::NORMAL, L"黑体", 18, 30).Load(".\\save\\chs_font.dat")
                     .OnChanged([](const Utils::FontManager* m_this) -> void {
                         if (Hook::TextCharacterFont) ::DeleteObject(Hook::TextCharacterFont);
-                        Hook::TextCharacterFont = m_this->MakeFont();
+                        Hook::TextCharacterFont = m_this->MakeFont(UseCharSet);
                         //const auto& data = m_this->GetData();
                         //console::fmt::write(L"[ChooseFont] size: %d style: 0x%X name: %s\n", data.size, int(data.style), data.name);
                     });
-                Hook::TextCharacterFont = Hook::FontManager->MakeFont();
+                Hook::TextCharacterFont = Hook::FontManager->MakeFont(UseCharSet);
                 Hook::DefualtSymbolFont = Hook::FontManager->MakeDefualtFont(0x81);
             }
         }
@@ -108,20 +100,27 @@ namespace Hook {
             if (Hook::FontManager) Hook::FontManager->ChooseFont();
             return TRUE;
         }
+        
         return Patch::Hooker::Call<Hook::WndProc>(hWnd, uMsg, wParam, lParam);
     }
-}
 
-extern "C"  {
-    __declspec(dllexport) const char* _patch_by_iTsukezigen_(void) {
-        return "https://github.com/cokkeijigen/doko_iku_cn";
+    static BOOL WINAPI AppendMenuA(HMENU hMenu, UINT uFlags, UINT_PTR uIDNewItem, LPCSTR lpNewItem) {
+        //console::fmt::write<936>("[AppendMenuA] %s\n", lpNewItem);
+        return ::AppendMenuW(hMenu, uFlags, uIDNewItem, Utils::ConvertToUTF16(lpNewItem).c_str());
     }
-}
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
-    if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
+    static BOOL WINAPI ModifyMenuA(HMENU hMnu, UINT uPosition, UINT uFlags, UINT_PTR uIDNewItem, LPCSTR lpNewItem) {
+        //console::fmt::write<936>("[ModifyMenuA] %s\n", lpNewItem);
+        return ::ModifyMenuW(hMnu, uPosition, uFlags, uIDNewItem, Utils::ConvertToUTF16(lpNewItem).c_str());
+    }
+
+    inline static void Init() {
         Patch::Hooker::Begin();
         //console::make();
+        if (Utils::OsCurrentCodePage != 936) {
+            Patch::Hooker::Add<Hook::ModifyMenuA>(::ModifyMenuA);
+            Patch::Hooker::Add<Hook::AppendMenuA>(::AppendMenuA);
+        }
         Patch::Hooker::Add<Hook::GetGlyphOutlineA>(::GetGlyphOutlineA);
         Patch::Hooker::Add<Hook::WndProc>(reinterpret_cast<void*>(0x425F90));
         Patch::Hooker::Add<Hook::ReadGameFile>(reinterpret_cast<void*>(0x40BF90));
@@ -138,8 +137,19 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         Patch::Mem::MemWriteImpl(0x428FC9, uintptr_t(&asmNew), sizeof(asmNew) - 0); // RemoveMenu
         auto addr = reinterpret_cast<uintptr_t>(&Hook::SetLineBreak) - 0x433DB3 - 0x05;
         Patch::Mem::MemWriteImpl(0x433DB4, uintptr_t(&addr), 0x04); // hook自动换行，没卵用？孩子不懂事hook着玩
-        
         Patch::Hooker::Commit();
+    }
+}
+
+extern "C"  {
+    __declspec(dllexport) const char* _patch_by_iTsukezigen_(void) {
+        return "https://github.com/cokkeijigen/doko_iku_cn";
+    }
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
+    if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
+        Hook::Init();
     }
     return TRUE;
 }
