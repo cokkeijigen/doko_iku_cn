@@ -3,15 +3,15 @@
 #include <string>
 #include <thread>
 #include <windows.h>
-#include <commctrl.h>
 #include <filesystem>
 #include "console.hpp"
 #include "FontManager.hpp"
 #pragma comment(lib, "Comctl32.lib")
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+	name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+	processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 namespace Utils {
-
-	static auto _OS_VERSION_ = ::GetVersion();
 
 	auto CALLBACK FontManager::FontListBox::EnumProc(ENUMLOGFONTEX* lpelfe, NEWTEXTMETRICEX* lpntme, DWORD fontType, LPARAM lParam) -> int {
 		if (fontType == TRUETYPE_FONTTYPE && lpelfe->elfLogFont.lfFaceName[0] != 0x40) {
@@ -32,6 +32,11 @@ namespace Utils {
 			m_this->InitDisplay();
 			break;
 		}
+		case WM_CTLCOLORBTN:
+		case WM_CTLCOLORSTATIC: {
+			::SetBkColor(reinterpret_cast<HDC>(wParam), m_this->DefaultBackgroundColor);
+			return reinterpret_cast<LRESULT>(m_this->DefaultSolidBrush);
+		}
 		case WM_COMMAND: {
 			
 			if (LOWORD(wParam) == m_this->m_FontListBox.IDC && HIWORD(wParam) == LBN_SELCHANGE) {
@@ -44,22 +49,19 @@ namespace Utils {
 				}
 			}
 			else if (LOWORD(wParam) == m_this->m_ResetButton.IDC) {
-				m_this->currentData = m_this->defaultData;
-				if (m_this->m_FontListBox.ResetDefault() == -1) {
-					if (m_this->m_FontListBox.SelectItem(m_this->currentData.name) == LB_ERR) {
+				if (std::memcmp(&m_this->currentData, &m_this->defaultData, sizeof(FontManager::Data))) {
+					m_this->currentData = m_this->defaultData;
+					m_this->UpdateBoxState().UpdateDisplay(true);
+					if (m_this->m_FontListBox.ResetDefault() == -1 && m_this->m_FontListBox
+						.SelectItem(m_this->currentData.name) == LB_ERR) 
+					{
 						m_this->m_FontListBox.SendMessage(LB_SETCURSEL, -1, 0);
 					}
 				}
-				m_this->m_FszGroupBox.nameEditor.SetTextW(m_this->currentData.name);
-				m_this->m_FszGroupBox.sizeText.SetValue(m_this->currentData.size);
-				m_this->m_FszGroupBox.trackBar.SetValue(m_this->currentData.size);
-				m_this->m_StyGroupBox.SetChecked(m_this->currentData.style);
-				m_this->UpdateDisplay(true);
-
 			}
 			else if (LOWORD(wParam) == m_this->m_ApplyButton.IDC) {
 				m_this->StorageData();
-				if (auto&& name = m_this->m_FszGroupBox.nameEditor.GetTextW(); 
+				if (auto&& name = m_this->m_FszGroupBox.nameEditor.GetTextW();
 					!name.empty() && name != m_this->currentData.name)
 				{
 					::wcscpy_s(m_this->currentData.name, name.c_str());
@@ -136,10 +138,16 @@ namespace Utils {
 			m_this->sizeText.SetValue(m_this->manager->currentData.size);
 			m_this->manager->UpdateDisplay(true);
 		}
+
+		if(uMsg == WM_CTLCOLORSTATIC ) {
+			::SetBkColor(reinterpret_cast<HDC>(wParam), m_this->manager->DefaultBackgroundColor);
+			return reinterpret_cast<LRESULT>(m_this->manager->DefaultSolidBrush);
+		}
 		return m_this->m_proc(hwnd, uMsg, wParam, lParam);
 	}
 	
 	auto CALLBACK FontManager::FontListBox::BoxProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) -> LRESULT {
+
 		return m_this->m_proc(hwnd, uMsg, wParam, lParam);
 	}
 
@@ -150,6 +158,10 @@ namespace Utils {
 				m_this->manager->UpdateDisplay(true);
 			}
 			return TRUE;
+		}
+		if(uMsg == WM_CTLCOLORSTATIC) {
+			::SetBkColor(reinterpret_cast<HDC>(wParam), m_this->manager->DefaultBackgroundColor);
+			return reinterpret_cast<LRESULT>(m_this->manager->DefaultSolidBrush);
 		}
 		return m_this->m_proc(hwnd, uMsg, wParam, lParam);
 	}
@@ -230,7 +242,7 @@ namespace Utils {
 	}
 
 	inline FontManager::FszGroupBox::FszGroupBox(FontManager* manager, HFONT font, HINSTANCE hInstance) : WindowBase(
-		WS_EX_LTRREADING, L"BUTTON", L"字体＆大小", WS_VISIBLE | WS_CHILD | BS_GROUPBOX | BS_CENTER, 305, 75, 220, 115,
+		WS_EX_LTRREADING, L"BUTTON", L"字体＆大小", WS_VISIBLE | WS_CHILD | BS_GROUPBOX | BS_CENTER , 305, 75, 220, 115,
 		manager->m_hwnd, hInstance), nameEditor(manager, this->m_hwnd, font, hInstance), trackBar(this->m_hwnd, hInstance),
 		sizeText(this->m_hwnd, font, hInstance), manager(manager)
 	{
@@ -265,7 +277,7 @@ namespace Utils {
 	}
 
 	inline auto Utils::FontManager::FszGroupBox::Trackbar::GetValue() const -> int {
-		return this->SendMessage(TBM_GETPOS, 0, 0);;
+		return this->SendMessage(TBM_GETPOS, 0, 0);
 	}
 
 	inline auto FontManager::FszGroupBox::Trackbar::Set(int min, int max, int value, bool redraw) const -> const Trackbar& {
@@ -322,14 +334,68 @@ namespace Utils {
 	}
 
 	inline auto FontManager::StyGroupBox::GetChecked() const -> uint16_t {
-		return 0;
+		if (this->button1.IsChecked()) {
+			return this->button1.IDC;
+		}
+		if (this->button2.IsChecked()) {
+			return this->button2.IDC;
+		}
+		if (this->button3.IsChecked()) {
+			return this->button3.IDC;
+		}
+		if (this->button4.IsChecked()) {
+			return this->button4.IDC;
+		}
+		return NULL;
 	}
 	
+	FontManager::ActCtxHelper::ActCtxHelper(HMODULE dllInstance) {
+		this->Init(dllInstance);
+	}
+
+	FontManager::ActCtxHelper::~ActCtxHelper() {
+		if (this->m_ActCtx) ::ReleaseActCtx(this->m_ActCtx);
+		this->m_ActCtx = { INVALID_HANDLE_VALUE };
+	}
+
+	auto FontManager::ActCtxHelper::Init(HMODULE dllInstance, ACTCTX actCtx) -> void {
+		if (this->m_ActCtx) ::ReleaseActCtx(this->m_ActCtx);
+		actCtx.cbSize = sizeof(actCtx);
+		actCtx.hModule = dllInstance;
+		actCtx.lpResourceName = MAKEINTRESOURCE(2);
+		actCtx.dwFlags = ACTCTX_FLAG_HMODULE_VALID | ACTCTX_FLAG_RESOURCE_NAME_VALID;
+		this->m_ActCtx = CreateActCtxW(&actCtx);
+	}
+
+	auto FontManager::ActCtxHelper::Get() const -> HANDLE {
+		return this->m_ActCtx;
+	}
+
+	auto FontManager::ActCtxHelper::Activate() -> bool {
+		if (this->m_ActCtx != INVALID_HANDLE_VALUE) {
+			return ::ActivateActCtx(this->m_ActCtx, &this->m_Cookie);
+		}
+		return false;
+	}
+
+	auto FontManager::ActCtxHelper::Deactivate() -> bool {
+		bool result{ false };
+		if (this->m_ActCtx != INVALID_HANDLE_VALUE && this->m_Cookie) {
+			result = ::DeactivateActCtx(0, this->m_Cookie);
+		}
+		this->m_Cookie = {};
+		return result;
+	}
+
 	auto FontManager::Init(INITCOMMONCONTROLSEX icc, WNDCLASSEX cls) -> void {
 		::InitCommonControlsEx(&icc);
 		cls.lpfnWndProc = ::DefWindowProcW;
 		cls.lpszClassName = FontManager::ManagerClassName;
 		::RegisterClassExW(&cls);
+	}
+
+	auto FontManager::InitVisStyActCtx(HMODULE dllInstance) -> void {
+		FontManager::VisStyActCtx->Init(dllInstance);
 	}
 
 	auto FontManager::IsFullScreen() const -> bool {
@@ -343,22 +409,12 @@ namespace Utils {
 			rect.bottom >= nScreenHeight;
 	}
 
-	auto FontManager::Create(HWND parent, HFONT hFont, HINSTANCE hInstance) -> FontManager {
-		return FontManager::Init(), FontManager(parent, hFont, hInstance);
-	}	
-	
-	auto FontManager::Create(HFONT hFont, HINSTANCE hInstance) -> FontManager {
-		return FontManager::Create(NULL, hFont, hInstance);
-	}
-
-	auto FontManager::Create(HWND parent, HINSTANCE hInstance) -> FontManager {
-		return FontManager::Create(parent, ::CreateFontW(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE,
-			FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, 
-			DEFAULT_PITCH | FF_DONTCARE, L"微软雅黑"), hInstance);
-	}
-
 	auto FontManager::CreatePtr(HWND parent, HFONT hFont, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
-		return FontManager::Init(), std::unique_ptr<FontManager>(new FontManager(parent, hFont, hInstance));
+		FontManager::Init(); 
+		FontManager::VisStyActCtx->Activate();
+		auto result = std::unique_ptr<FontManager>(new FontManager(parent, hFont, hInstance));
+		FontManager::VisStyActCtx->Deactivate();
+		return result;
 	}
 
 	auto FontManager::CreatePtr(HFONT hFont, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
@@ -447,7 +503,6 @@ namespace Utils {
 		this->m_Callback = callback;
 		return *this;
 	}
-
 	auto FontManager::OnChanged(std::function<void(int size, Style style, const std::wstring_view name)> callback) -> FontManager& {
 		return this->OnChanged([callback](const FontManager* m_this) -> void {
 			callback(m_this->currentData.size, m_this->currentData.style, m_this->currentData.name);
@@ -466,15 +521,11 @@ namespace Utils {
 			y = ((windowRect.top + windowRect.bottom) / 2) - (height / 2);
 		}
 		::SetWindowPos(this->m_hwnd, topMost ? HWND_TOPMOST: HWND_NOTOPMOST, x, y, NULL, NULL, SWP_NOSIZE | SWP_NOACTIVATE);
-		if(topMost) ::EnableWindow(this->m_Parent.m_hwnd, FALSE);
 		::SetForegroundWindow(this->m_hwnd);
 		return ::ShowWindow(this->m_hwnd, SW_SHOW);
 	}
 
 	auto FontManager::HideWindow() const-> BOOL {
-		if (!::IsWindowEnabled(this->m_Parent.m_hwnd)) {
-			::EnableWindow(this->m_Parent.m_hwnd, TRUE);
-		}
 		return ::ShowWindow(m_this->m_hwnd, SW_HIDE);
 	}
 
@@ -508,8 +559,8 @@ namespace Utils {
 	}
 
 	auto Utils::FontManager::MakeFont(DWORD iCharSet) const -> HFONT {
-		auto&& name = wcslen(this->currentData.name) > 0 ? this->currentData.name : 
-			wcslen(this->defaultData.name) > 0 ? this->defaultData.name : L"";
+		auto&& name = ::wcslen(this->currentData.name) > 0 ? this->currentData.name : 
+			::wcslen(this->defaultData.name) > 0 ? this->defaultData.name : L"";
 		auto&& size = this->currentData.size > 0 ? this->currentData.size : this->defaultData.size;
 		auto&& style = this->currentData.style ? this->currentData.style : this->defaultData.style;
 		return ::CreateFontW(size, 0, 0, 0, style & static_cast<uint16_t>(0x00F0) ? FW_BOLD : FW_NORMAL,
@@ -524,24 +575,32 @@ namespace Utils {
 	}
 
 
+	FontManager::FontManager(HWND parent, HFONT font, HINSTANCE hInstance) : WindowBase(
+		WS_EX_LTRREADING, FontManager::ManagerClassName, L"字体设置", WS_SYSMENU | WS_CAPTION, NULL,
+		NULL, 550, 375, NULL, NULL, NULL, hInstance), m_hFont(font), m_StyGroupBox(this, font, hInstance),
+		m_ApplyButton(this->m_hwnd, font, hInstance), m_ResetButton(this->m_hwnd, font, hInstance),
+		m_FszGroupBox(this, font, hInstance), m_FontListBox(this, font, hInstance), m_Parent(parent)
+	{
+		this->Set(GWLP_USERDATA, parent);
+		this->SetFont(font).SetProc(FontManager::ManagerWndProc);
+		this->SetIcon(reinterpret_cast<HICON>(::GetClassLongW(parent, GCLP_HICON)));
+	}
+
 	auto FontManager::InitDisplay(SIZE size, PAINTSTRUCT ps) -> FontManager& {
 		static constexpr wchar_t text[]{ L"※请适当调整字体大小，过大过小都可能会导致游戏内显示异常。" };
 		HDC hdc = ::BeginPaint(this->m_hwnd, &ps);
-		HBRUSH brush = ::CreateSolidBrush(RGB(232, 234, 240));
-		::FillRect(hdc, &ps.rcPaint, brush);
+		::FillRect(hdc, &ps.rcPaint, this->DefaultSolidBrush);
 		::SelectObject(hdc, this->m_hFont);
 		::SetTextColor(hdc, RGB(193, 0, 0));
-		::SetTextCharacterExtra(hdc, 2);
 		::GetTextExtentPoint32W(hdc, text, (sizeof(text) - 2) / 2, &size);
 		::SetBkMode(hdc, TRANSPARENT);
 		::TextOutW(hdc, ((550 - size.cx) / 2), 316, text, (sizeof(text) - 2) / 2);
-		::DeleteObject(brush);
 		::EndPaint(this->m_hwnd, &ps);
 		return this->UpdateDisplay();
 	}
 
 	auto FontManager::UpdateDisplay(bool state, SIZE size, PAINTSTRUCT ps) -> FontManager& {
-		static constexpr RECT rect{ 0, 0, 550, 70 };
+		static const RECT rect{ 0, 0, 550, 70 };
 		static constexpr wchar_t text[]{ L"这是一段测试字体样式的文字。" };
 		this->SetTextW(state ? L"字体设置 *未应用" : L"字体设置");
 		::InvalidateRect(this->m_hwnd, &rect, TRUE);
