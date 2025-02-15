@@ -357,7 +357,6 @@ namespace Utils {
 		static inline const auto DefaultSolidBrush{ ::CreateSolidBrush(FontManager::DefaultBackgroundColor) };
 		static inline const auto VisStyActCtx{ std::make_unique<ActCtxHelper>() };
 
-		Data defaultData{}, currentData{}, lastData{};
 		const HFONT m_hFont;
 		const StyGroupBox m_StyGroupBox;
 		const FszGroupBox m_FszGroupBox;
@@ -365,10 +364,11 @@ namespace Utils {
 		const ApplyButton m_ApplyButton;
 		const ResetButton m_ResetButton;
 		const ParentWindow m_Parent;
-		Callback m_Callback{};
+
 		std::string m_storageFilePath{};
-		bool m_OnChoosing = false;
-		bool m_DataUpdate = false;
+		FontManager::Callback m_Callback{};
+		bool m_OnChoosing{ false }, m_DataUpdate{ false };
+		FontManager::Data defaultData{}, currentData{}, lastData{};
 
 		FontManager(HWND parent, HFONT font, HINSTANCE hInstance = ::GetModuleHandleW(NULL));
 		auto InitDisplay(SIZE size = {}, PAINTSTRUCT ps = {}) -> FontManager&;
