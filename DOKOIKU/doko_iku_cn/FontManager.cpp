@@ -379,10 +379,7 @@ namespace Utils {
 	}
 
 	auto FontManager::ActCtxHelper::Deactivate() -> bool {
-		bool result{ false };
-		if (this->m_ActCtx != INVALID_HANDLE_VALUE && this->m_Cookie) {
-			result = ::DeactivateActCtx(0, this->m_Cookie);
-		}
+		bool result = ::DeactivateActCtx(0, this->m_Cookie);
 		this->m_Cookie = {};
 		return result;
 	}
