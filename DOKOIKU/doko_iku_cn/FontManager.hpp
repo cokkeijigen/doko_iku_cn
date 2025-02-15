@@ -343,8 +343,6 @@ namespace Utils {
 		using Callback = std::function<void(const FontManager* m_this)>;
 
 	private:
-		
-		static inline constexpr wchar_t ManagerClassName[] = L"FontManager";
 
 		static auto CALLBACK ManagerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) -> LRESULT;
 
@@ -353,6 +351,7 @@ namespace Utils {
 
 	protected:
 
+		static inline constexpr wchar_t ManagerClassName[] = L"FontManager";
 		static inline constexpr auto DefaultBackgroundColor{ RGB(232, 234, 240) };
 		static inline const auto DefaultSolidBrush{ ::CreateSolidBrush(FontManager::DefaultBackgroundColor) };
 		static inline const auto VisStyActCtx{ std::make_unique<ActCtxHelper>() };
