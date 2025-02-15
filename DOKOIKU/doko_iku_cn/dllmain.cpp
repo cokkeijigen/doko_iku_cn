@@ -1,4 +1,5 @@
-﻿#include <iostream>
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
 #include <windows.h>
 #include <patch.h>
 #include <console.hpp>
@@ -57,10 +58,13 @@ namespace Hook {
         int result = 0;
         if (auto&& index = GamePackManger.GetFileIndex(name); index != -1) {
             *(DWORD*)(uintptr_t(m_this) + 0xEA718) = DWORD(GamePackManger.GetFileSize(index));
+            auto&& free   = reinterpret_cast<decltype(std::free)*>  (0x44394A);
+            auto&& malloc = reinterpret_cast<decltype(std::malloc)*>(0x443E4F);
             if (*(DWORD*)(uintptr_t(m_this) + 0x0C)) {
-                std::free(*(void**)(uintptr_t(m_this) + 0xC));
+                free(*(void**)(uintptr_t(m_this) + 0xC));
             }
-            if (auto&& buffer = std::malloc(*(DWORD*)(uintptr_t(m_this) + 0xEA718))) {
+            if (auto&& buffer = malloc(*(DWORD*)(uintptr_t(m_this) + 0xEA718))) {
+                *(DWORD*)(uintptr_t(m_this) + 0x0C) = DWORD(buffer);
                 *(DWORD*)(uintptr_t(m_this) + 0x04) = DWORD(buffer);
                 *(DWORD*)(uintptr_t(m_this) + 0x08) = DWORD(buffer);
                 result = GamePackManger.GetFileData(index, buffer);
