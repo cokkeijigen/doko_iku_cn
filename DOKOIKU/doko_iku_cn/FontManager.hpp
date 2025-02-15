@@ -356,6 +356,7 @@ namespace Utils {
 		static inline constexpr auto DefaultBackgroundColor{ RGB(232, 234, 240) };
 		static inline const auto DefaultSolidBrush{ ::CreateSolidBrush(FontManager::DefaultBackgroundColor) };
 		static inline const auto VisStyActCtx{ std::make_unique<ActCtxHelper>() };
+
 		Data defaultData{}, currentData{}, lastData{};
 		const HFONT m_hFont;
 		const StyGroupBox m_StyGroupBox;
