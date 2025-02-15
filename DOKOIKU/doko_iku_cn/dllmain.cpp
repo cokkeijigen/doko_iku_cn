@@ -9,8 +9,7 @@
 
 namespace Hook {
     
-    static HFONT DefualtSymbolFont{ NULL };
-    static HFONT TextCharacterFont{ NULL };
+    static HFONT DefualtSymbolFont{ NULL },  TextCharacterFont{ NULL };
     static std::unique_ptr<Utils::FontManager> FontManager { nullptr };
 
     static DWORD WINAPI GetGlyphOutlineA(HDC hdc, UINT uChar, UINT fuf, LPGLYPHMETRICS lpgm, DWORD cjbf, LPVOID pvbf, MAT2* lpmat) {
@@ -64,9 +63,9 @@ namespace Hook {
                 free(*(void**)(uintptr_t(m_this) + 0xC));
             }
             if (auto&& buffer = malloc(*(DWORD*)(uintptr_t(m_this) + 0xEA718))) {
-                *(DWORD*)(uintptr_t(m_this) + 0x0C) = DWORD(buffer);
                 *(DWORD*)(uintptr_t(m_this) + 0x04) = DWORD(buffer);
                 *(DWORD*)(uintptr_t(m_this) + 0x08) = DWORD(buffer);
+                *(DWORD*)(uintptr_t(m_this) + 0x0C) = DWORD(buffer);
                 result = GamePackManger.GetFileData(index, buffer);
             }
         }
@@ -123,9 +122,10 @@ namespace Hook {
         return ::MessageBoxW(hWnd, Utils::ConvertToUTF16(lpText).c_str(), Utils::ConvertToUTF16(lpCaption).c_str(), uType);
     }
 
-    inline static void Init() {
-        Patch::Hooker::Begin();
+    inline static void Init(HMODULE hModule) {
         //console::make();
+        Patch::Hooker::Begin();
+        Utils::FontManager::InitVisStyActCtx(hModule); // 激活视觉样式上下文API
         if (Utils::OsCurrentCodePage != 936) {
             Patch::Hooker::Add<Hook::ModifyMenuA>(::ModifyMenuA);
             Patch::Hooker::Add<Hook::AppendMenuA>(::AppendMenuA);
@@ -159,7 +159,7 @@ extern "C"  {
 
     BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
         if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-            Hook::Init();
+            Hook::Init(hModule);
         }
         return TRUE;
     }
