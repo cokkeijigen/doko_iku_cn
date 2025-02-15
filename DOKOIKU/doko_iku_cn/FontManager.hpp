@@ -25,7 +25,7 @@ namespace Utils {
 	protected:
 
 		static inline T* m_this{ nullptr };
-		const decltype(::DefWindowProcW)* m_proc{ nullptr };
+		decltype(::DefWindowProcW)* const m_proc{ nullptr };
 		const HWND m_hwnd{ nullptr };
 
 		inline WindowBase(): m_hwnd(nullptr), m_proc(nullptr){}
@@ -229,6 +229,10 @@ namespace Utils {
 					this->SendMessage(BM_SETCHECK, BST_CHECKED, 0);
 				}
 
+				inline auto IsChecked() const -> bool {
+					return this->SendMessage(BM_GETCHECK, NULL, NULL);
+				}
+
 				inline auto UnChecked() const -> void {
 					this->SendMessage(BM_SETCHECK, BST_UNCHECKED, 0);
 				}
@@ -307,9 +311,25 @@ namespace Utils {
 			using WindowBase::WindowBase;
 		};
 
+		class ActCtxHelper {
+			friend FontManager;
+		private:
+			HANDLE m_ActCtx{ INVALID_HANDLE_VALUE };
+			ULONG_PTR m_Cookie{};
+			auto Init(HMODULE dllIns, ACTCTX actCtx = {}) -> void;
+		public:
+			auto Get() const -> HANDLE;
+			auto Activate() -> bool;
+			auto Deactivate() -> bool;
+			ActCtxHelper() = default;
+			ActCtxHelper(HMODULE dllIns);
+			~ActCtxHelper();
+		};
+
 		friend FontListBox;
 		friend FszGroupBox;
 		friend StyGroupBox;
+
 	public:
 		
 		enum Style : uint16_t { 
@@ -318,19 +338,24 @@ namespace Utils {
 			ITALIC = StyGroupBox::Button3::IDC,
 			BOLD_ITALIC = StyGroupBox::Button4::IDC
 		};
+		
 		struct Data { int16_t size; Style style; wchar_t name[32] = L""; };
 		using Callback = std::function<void(const FontManager* m_this)>;
+
 	private:
+		
 		static inline constexpr wchar_t ManagerClassName[] = L"FontManager";
 
 		static auto CALLBACK ManagerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) -> LRESULT;
 
-		static auto Init(INITCOMMONCONTROLSEX icc = { sizeof(INITCOMMONCONTROLSEX), ICC_BAR_CLASSES },
+		static auto Init(INITCOMMONCONTROLSEX icc = { sizeof(INITCOMMONCONTROLSEX), ICC_STANDARD_CLASSES },
 			WNDCLASSEX cls = { sizeof(WNDCLASSEX), CS_SAVEBITS }) -> void;
 
-		auto IsFullScreen() const -> bool;
-
 	protected:
+
+		static inline constexpr auto DefaultBackgroundColor{ RGB(232, 234, 240) };
+		static inline const auto DefaultSolidBrush{ ::CreateSolidBrush(FontManager::DefaultBackgroundColor) };
+		static inline const auto VisStyActCtx{ std::make_unique<ActCtxHelper>() };
 		Data defaultData{}, currentData{}, lastData{};
 		const HFONT m_hFont;
 		const StyGroupBox m_StyGroupBox;
@@ -344,21 +369,14 @@ namespace Utils {
 		bool m_OnChoosing = false;
 		bool m_DataUpdate = false;
 
-		FontManager(HWND parent, HFONT font, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) : WindowBase(
-			WS_EX_LTRREADING, FontManager::ManagerClassName, L"字体设置", WS_SYSMENU | WS_CAPTION, NULL,
-			NULL, 550, 375, NULL, NULL, NULL, hInstance), m_hFont(font), m_StyGroupBox(this, font, hInstance),
-			m_ApplyButton(this->m_hwnd, font, hInstance), m_ResetButton(this->m_hwnd, font, hInstance),
-			m_FszGroupBox(this, font, hInstance), m_FontListBox(this, font, hInstance), m_Parent(parent)
-		{
-			this->Set(GWLP_USERDATA, parent);
-			this->SetFont(font).SetProc(FontManager::ManagerWndProc);
-			this->SetIcon(reinterpret_cast<HICON>(::GetClassLongW(parent, GCLP_HICON)));
-		}
+		FontManager(HWND parent, HFONT font, HINSTANCE hInstance = ::GetModuleHandleW(NULL));
 		auto InitDisplay(SIZE size = {}, PAINTSTRUCT ps = {}) -> FontManager&;
 		auto UpdateDisplay(bool state = false, SIZE size = {}, PAINTSTRUCT ps = {}) -> FontManager&;
 		auto UpdateBoxState() -> FontManager&;
 		auto ShowWindow(bool topMost = false) const -> BOOL;
 		auto HideWindow() const -> BOOL;
+		auto IsFullScreen() const -> bool;
+
 	public:
 
 		auto MessageLoop() const -> void;
@@ -380,10 +398,7 @@ namespace Utils {
 		auto IsWindowVisible() -> bool;
 		auto UpdateDisplayState() -> FontManager&;
 
-		static auto Create(HWND parent, HFONT hFont, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> FontManager;
-		static auto Create(HWND parent, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> FontManager;
-		static auto Create(HFONT hFont, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> FontManager;
-
+		static auto InitVisStyActCtx(HMODULE dllInstance) -> void;
 		static auto CreatePtr(HWND parent, HFONT hFont, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> std::unique_ptr<FontManager>;
 		static auto CreatePtr(HFONT hFont, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> std::unique_ptr<FontManager>;
 		static auto CreatePtr(HWND parent, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> std::unique_ptr<FontManager>;
