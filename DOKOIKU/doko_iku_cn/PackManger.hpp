@@ -54,7 +54,7 @@ namespace Utils {
                 this->Clear();
                 return;
             }
-            if (this->entrys) for (size_t i = 1; i < this->entrys->length; i++) {
+            if (this->entrys) for (int32_t i = 1; i < head.length; i++) {
                 PackManger::ToLowerCase(this->entrys[i].name);
             }
         }
@@ -68,7 +68,7 @@ namespace Utils {
         }
 
         int GetFileIndex(std::string name) {
-            if (this->HasData()) for (size_t i = 1; i < this->entrys->length; i++) {
+            if (this->HasData()) for (int32_t i = 1; i < this->entrys->length; i++) {
                 PackManger::ToLowerCase(const_cast<char*>(name.c_str()));
                 if (name == this->entrys[i].name) {
                     return i;
