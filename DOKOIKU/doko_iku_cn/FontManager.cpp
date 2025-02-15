@@ -474,7 +474,7 @@ namespace Utils {
 	}
 
 
-	auto FontManager::ShowWindow(bool topMost) const-> BOOL {
+	auto FontManager::ShowWindow(bool topMost) const -> BOOL {
 		int x{ CW_USEDEFAULT }, y{ CW_USEDEFAULT }, width{ 550 }, height{ 355 };
 		if (RECT windowRect{}; ::GetWindowRect(this->Get<HWND>(GWLP_USERDATA), &windowRect) ||
 			::GetWindowRect(GetDesktopWindow(), &windowRect)) {
