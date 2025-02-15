@@ -447,6 +447,7 @@ namespace Utils {
 		this->m_Callback = callback;
 		return *this;
 	}
+
 	auto FontManager::OnChanged(std::function<void(int size, Style style, const std::wstring_view name)> callback) -> FontManager& {
 		return this->OnChanged([callback](const FontManager* m_this) -> void {
 			callback(m_this->currentData.size, m_this->currentData.style, m_this->currentData.name);
@@ -540,7 +541,7 @@ namespace Utils {
 	}
 
 	auto FontManager::UpdateDisplay(bool state, SIZE size, PAINTSTRUCT ps) -> FontManager& {
-		static const RECT rect{ 0, 0, 550, 70 };
+		static constexpr RECT rect{ 0, 0, 550, 70 };
 		static constexpr wchar_t text[]{ L"这是一段测试字体样式的文字。" };
 		this->SetTextW(state ? L"字体设置 *未应用" : L"字体设置");
 		::InvalidateRect(this->m_hwnd, &rect, TRUE);
