@@ -387,46 +387,6 @@ namespace Utils {
 		return result;
 	}
 
-	auto FontManager::Init(INITCOMMONCONTROLSEX icc, WNDCLASSEX cls) -> void {
-		::InitCommonControlsEx(&icc);
-		cls.lpfnWndProc = ::DefWindowProcW;
-		cls.lpszClassName = FontManager::ManagerClassName;
-		::RegisterClassExW(&cls);
-	}
-
-	auto FontManager::InitVisStyActCtx(HMODULE dllInstance) -> void {
-		FontManager::VisStyActCtx->Init(dllInstance);
-	}
-
-	auto FontManager::IsFullScreen() const -> bool {
-		int nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
-		int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
-		LONG lStyle = this->m_Parent.Get(GWL_STYLE);
-		RECT rect = this->m_Parent.GetRect();
-		return (lStyle & WS_POPUP) == WS_POPUP &&
-			rect.left <= 0 && rect.top <= 0 &&
-			rect.right >= nScreenWidth &&
-			rect.bottom >= nScreenHeight;
-	}
-
-	auto FontManager::CreatePtr(HWND parent, HFONT hFont, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
-		FontManager::Init(); 
-		FontManager::VisStyActCtx->Activate();
-		auto result = std::unique_ptr<FontManager>(new FontManager(parent, hFont, hInstance));
-		FontManager::VisStyActCtx->Deactivate();
-		return result;
-	}
-
-	auto FontManager::CreatePtr(HFONT hFont, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
-		return FontManager::CreatePtr(NULL, hFont, hInstance);
-	}
-
-	auto FontManager::CreatePtr(HWND parent, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
-		return FontManager::CreatePtr(parent, ::CreateFontW(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE,
-			FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
-			DEFAULT_PITCH | FF_DONTCARE, L"微软雅黑"), hInstance);
-	}
-
 	auto FontManager::Init(Data defaultData, int minSize, int maxSize) -> FontManager& {
 		this->m_FszGroupBox.trackBar.SetRange(minSize, maxSize, false);
 		this->m_FontListBox.Init(defaultData.name);
@@ -513,6 +473,7 @@ namespace Utils {
 		return this->currentData;
 	}
 
+
 	auto FontManager::ShowWindow(bool topMost) const-> BOOL {
 		int x{ CW_USEDEFAULT }, y{ CW_USEDEFAULT }, width{ 550 }, height{ 355 };
 		if (RECT windowRect{}; ::GetWindowRect(this->Get<HWND>(GWLP_USERDATA), &windowRect) ||
@@ -527,6 +488,17 @@ namespace Utils {
 
 	auto FontManager::HideWindow() const-> BOOL {
 		return ::ShowWindow(m_this->m_hwnd, SW_HIDE);
+	}
+
+	auto FontManager::IsFullScreen() const -> bool {
+		int nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+		int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+		LONG lStyle = this->m_Parent.Get(GWL_STYLE);
+		RECT rect = this->m_Parent.GetRect();
+		return (lStyle & WS_POPUP) == WS_POPUP &&
+			rect.left <= 0 && rect.top <= 0 &&
+			rect.right >= nScreenWidth &&
+			rect.bottom >= nScreenHeight;
 	}
 
 	auto FontManager::MessageLoop() const -> void {
@@ -573,7 +545,6 @@ namespace Utils {
 			this->defaultData.style & static_cast<uint16_t>(0x0F00) ? TRUE : FALSE, FALSE, FALSE, iCharSet, OUT_DEFAULT_PRECIS,
 			CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, this->defaultData.name);
 	}
-
 
 	FontManager::FontManager(HWND parent, HFONT font, HINSTANCE hInstance) : WindowBase(
 		WS_EX_LTRREADING, FontManager::ManagerClassName, L"字体设置", WS_SYSMENU | WS_CAPTION, NULL,
@@ -636,5 +607,34 @@ namespace Utils {
 			this->ShowWindow(this->IsFullScreen());
 		}
 		return *this;
+	}
+
+	auto FontManager::Init(INITCOMMONCONTROLSEX icc, WNDCLASSEX cls) -> void {
+		::InitCommonControlsEx(&icc);
+		cls.lpfnWndProc = ::DefWindowProcW;
+		cls.lpszClassName = FontManager::ManagerClassName;
+		::RegisterClassExW(&cls);
+	}
+
+	auto FontManager::InitVisStyActCtx(HMODULE dllInstance) -> void {
+		FontManager::VisStyActCtx->Init(dllInstance);
+	}
+
+	auto FontManager::CreatePtr(HWND parent, HFONT hFont, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
+		FontManager::Init();
+		FontManager::VisStyActCtx->Activate();
+		auto result = std::unique_ptr<FontManager>(new FontManager(parent, hFont, hInstance));
+		FontManager::VisStyActCtx->Deactivate();
+		return result;
+	}
+
+	auto FontManager::CreatePtr(HFONT hFont, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
+		return FontManager::CreatePtr(NULL, hFont, hInstance);
+	}
+
+	auto FontManager::CreatePtr(HWND parent, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
+		return FontManager::CreatePtr(parent, ::CreateFontW(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE,
+			FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
+			DEFAULT_PITCH | FF_DONTCARE, L"微软雅黑"), hInstance);
 	}
 }
