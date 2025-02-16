@@ -11,6 +11,8 @@
 	name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 	processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+extern "C" IMAGE_DOS_HEADER __ImageBase;
+
 namespace Utils {
 
 	auto CALLBACK FontManager::FontListBox::EnumProc(ENUMLOGFONTEX* lpelfe, NEWTEXTMETRICEX* lpntme, DWORD fontType, LPARAM lParam) -> int {
@@ -285,7 +287,7 @@ namespace Utils {
 	}
 
 	inline FontManager::FszGroupBox::SizeText::SizeText(HWND parent, HFONT font, HINSTANCE hInstance) : WindowBase(
-		WS_EX_LTRREADING, L"STATIC", WS_VISIBLE | WS_CHILD, 190, 80, 20, 20, parent, hInstance) {
+		WS_EX_LTRREADING, L"STATIC", WS_VISIBLE | WS_CHILD, 185, 75, 20, 20, parent, hInstance) {
 		this->SetFont(font);
 	}
 
@@ -349,22 +351,19 @@ namespace Utils {
 		return NULL;
 	}
 	
-	FontManager::ActCtxHelper::ActCtxHelper(HMODULE dllInstance) {
-		this->Init(dllInstance);
-	}
-
-	FontManager::ActCtxHelper::~ActCtxHelper() {
-		if (this->m_ActCtx) ::ReleaseActCtx(this->m_ActCtx);
-		this->m_ActCtx = { INVALID_HANDLE_VALUE };
-	}
-
-	auto FontManager::ActCtxHelper::Init(HMODULE dllInstance, ACTCTX actCtx) -> void {
-		if (this->m_ActCtx) ::ReleaseActCtx(this->m_ActCtx);
-		actCtx.cbSize = sizeof(actCtx);
-		actCtx.hModule = dllInstance;
+	FontManager::ActCtxHelper::ActCtxHelper(ACTCTX actCtx) {
+		actCtx.cbSize  = sizeof(actCtx);
+		actCtx.hModule = reinterpret_cast<HMODULE>(&__ImageBase);
 		actCtx.lpResourceName = MAKEINTRESOURCE(2);
 		actCtx.dwFlags = ACTCTX_FLAG_HMODULE_VALID | ACTCTX_FLAG_RESOURCE_NAME_VALID;
 		this->m_ActCtx = CreateActCtxW(&actCtx);
+	}
+
+	FontManager::ActCtxHelper::~ActCtxHelper() {
+		if (this->m_ActCtx && this->m_ActCtx != INVALID_HANDLE_VALUE) {
+			::ReleaseActCtx(this->m_ActCtx);
+		}
+		this->m_ActCtx = { };
 	}
 
 	auto FontManager::ActCtxHelper::Get() const -> HANDLE {
@@ -478,12 +477,16 @@ namespace Utils {
 			x = ((windowRect.left + windowRect.right) / 2) - (width / 2);
 			y = ((windowRect.top + windowRect.bottom) / 2) - (height / 2);
 		}
+		::EnableWindow(this->m_Parent.m_hwnd, static_cast<BOOL>(!topMost));
 		::SetWindowPos(this->m_hwnd, topMost ? HWND_TOPMOST: HWND_NOTOPMOST, x, y, NULL, NULL, SWP_NOSIZE | SWP_NOACTIVATE);
 		::SetForegroundWindow(this->m_hwnd);
 		return ::ShowWindow(this->m_hwnd, SW_SHOW);
 	}
 
 	auto FontManager::HideWindow() const-> BOOL {
+		if (!::IsWindowEnabled(this->m_Parent.m_hwnd)) {
+			::EnableWindow(this->m_Parent.m_hwnd, TRUE);
+		}
 		return ::ShowWindow(m_this->m_hwnd, SW_HIDE);
 	}
 
@@ -611,10 +614,6 @@ namespace Utils {
 		cls.lpfnWndProc = ::DefWindowProcW;
 		cls.lpszClassName = FontManager::ManagerClassName;
 		::RegisterClassExW(&cls);
-	}
-
-	auto FontManager::InitVisStyActCtx(HMODULE dllInstance) -> void {
-		FontManager::VisStyActCtx->Init(dllInstance);
 	}
 
 	auto FontManager::CreatePtr(HWND parent, HFONT hFont, HINSTANCE hInstance) -> std::unique_ptr<FontManager> {
