@@ -122,7 +122,7 @@ namespace Hook {
         return ::MessageBoxW(hWnd, Utils::ConvertToUTF16(lpText).c_str(), Utils::ConvertToUTF16(lpCaption).c_str(), uType);
     }
 
-    inline static void Init(HMODULE hModule) {
+    inline static void Init() {
         //console::make();
         Patch::Hooker::Begin();
         if (Utils::OsCurrentCodePage != 936) {
@@ -158,7 +158,7 @@ extern "C"  {
 
     BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
         if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-            Hook::Init(hModule);
+            Hook::Init();
         }
         return TRUE;
     }
