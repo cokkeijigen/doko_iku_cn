@@ -314,15 +314,13 @@ namespace Utils {
 		class ActCtxHelper {
 			friend FontManager;
 		private:
-			HANDLE m_ActCtx{ INVALID_HANDLE_VALUE };
+			HANDLE m_ActCtx{ };
 			ULONG_PTR m_Cookie{};
-			auto Init(HMODULE dllIns, ACTCTX actCtx = {}) -> void;
 		public:
 			auto Get() const -> HANDLE;
 			auto Activate() -> bool;
 			auto Deactivate() -> bool;
-			ActCtxHelper() = default;
-			ActCtxHelper(HMODULE dllIns);
+			ActCtxHelper(ACTCTX actCtx = {});
 			~ActCtxHelper();
 		};
 
@@ -398,7 +396,6 @@ namespace Utils {
 		auto IsWindowVisible() -> bool;
 		auto UpdateDisplayState() -> FontManager&;
 
-		static auto InitVisStyActCtx(HMODULE dllInstance) -> void;
 		static auto CreatePtr(HWND parent, HFONT hFont, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> std::unique_ptr<FontManager>;
 		static auto CreatePtr(HFONT hFont, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> std::unique_ptr<FontManager>;
 		static auto CreatePtr(HWND parent, HINSTANCE hInstance = ::GetModuleHandleW(NULL)) -> std::unique_ptr<FontManager>;
