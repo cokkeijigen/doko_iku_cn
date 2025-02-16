@@ -55,14 +55,14 @@ namespace Hook {
     static int __fastcall ReadGameFile(void* m_this, int edx, const char* name) {
         static Utils::PackManger GamePackManger("doko_iku_cn.pak");
         int result = 0;
-        if (auto&& index = GamePackManger.GetFileIndex(name); index != -1) {
+        if (int index = GamePackManger.GetFileIndex(name); index != -1) {
             *(DWORD*)(uintptr_t(m_this) + 0xEA718) = DWORD(GamePackManger.GetFileSize(index));
             auto&& free   = reinterpret_cast<decltype(std::free)*>  (0x44394A);
             auto&& malloc = reinterpret_cast<decltype(std::malloc)*>(0x443E4F);
             if (*(DWORD*)(uintptr_t(m_this) + 0x0C)) {
                 free(*(void**)(uintptr_t(m_this) + 0xC));
             }
-            if (auto&& buffer = malloc(*(DWORD*)(uintptr_t(m_this) + 0xEA718))) {
+            if (void* buffer = malloc(*(DWORD*)(uintptr_t(m_this) + 0xEA718))) {
                 *(DWORD*)(uintptr_t(m_this) + 0x04) = DWORD(buffer);
                 *(DWORD*)(uintptr_t(m_this) + 0x08) = DWORD(buffer);
                 *(DWORD*)(uintptr_t(m_this) + 0x0C) = DWORD(buffer);
@@ -125,7 +125,6 @@ namespace Hook {
     inline static void Init(HMODULE hModule) {
         //console::make();
         Patch::Hooker::Begin();
-        Utils::FontManager::InitVisStyActCtx(hModule); // 激活视觉样式上下文API
         if (Utils::OsCurrentCodePage != 936) {
             Patch::Hooker::Add<Hook::ModifyMenuA>(::ModifyMenuA);
             Patch::Hooker::Add<Hook::AppendMenuA>(::AppendMenuA);
