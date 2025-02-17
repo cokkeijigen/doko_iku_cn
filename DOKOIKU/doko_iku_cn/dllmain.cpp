@@ -133,6 +133,10 @@ namespace Hook {
         Patch::Hooker::Add<Hook::GetGlyphOutlineA>(::GetGlyphOutlineA);
         Patch::Hooker::Add<Hook::WndProc>(reinterpret_cast<void*>(0x425F90));
         Patch::Hooker::Add<Hook::ReadGameFile>(reinterpret_cast<void*>(0x40BF90));
+        RELEASE_ONLY({ // jmp 0x40C05F, nop nop ; 跳过免封包读取的逻辑
+            uint8_t jmpAsm[] = { 0xE9, 0x90, 0x00, 0x00, 0x00, 0x90, 0x90 };
+            Patch::Mem::MemWriteImpl(0x40BFCA, uintptr_t(&jmpAsm), sizeof(jmpAsm));
+        })
         uint8_t newAsm[] = { // hook菜单中的"字体"选项
             0xA1, 0x6C, 0x5C, 0x6C, 0x00, // mov eax, dword ptr ds:[0x006C5C6C]
             0x68, 0x34, 0x7A, 0x45, 0x00, // push 0x457A34 "字体(&T)"
