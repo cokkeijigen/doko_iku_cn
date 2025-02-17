@@ -1,11 +1,13 @@
-#pragma once
+﻿#pragma once
 #include <detours.h>
 #pragma comment(lib, "detours.lib")
 
 #ifdef _DEBUG
-#define DEBUG_ONLY(_code_) _code_
+#define DEBUG_ONLY(...) __VA_ARGS__
+#define RELEASE_ONLY(...)
 #else
-#define DEBUG_ONLY(_code_)
+#define DEBUG_ONLY(...) 
+#define RELEASE_ONLY(...) __VA_ARGS__
 #endif // _DEBUG
 
 namespace Patch {
