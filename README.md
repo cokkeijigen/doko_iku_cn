@@ -1,4 +1,5 @@
 # 游戏 “何処へ行くの、あの日” 汉化项目
+> 游戏详细：https://vndb.org/v466
 ## 0x00 本项目仅供学习交流使用，无任何盈利，严禁商业或特殊用途!!!
 ![Image text](https://github.com/cokkeijigen/doko_iku_cn/blob/master/test.png)<br>
 
