@@ -1,0 +1,45 @@
+project(doko_iku_cn)
+
+if(MSVC AND ${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+
+    # 安装 VC-LTL5（可选）
+    # https://github.com/Chuyu-Team/VC-LTL5/releases/latest
+    include("${CMAKE_CURRENT_LIST_DIR}/VC-LTL helper for cmake.cmake")
+    
+    # https://github.com/Chuyu-Team/YY-Thunks
+    set(YY_THUNKS_Win2K_OBJ "${CMAKE_CURRENT_LIST_DIR}/utillibs/YY_Thunks_for_Win2K.obj")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "\"${YY_THUNKS_Win2K_OBJ}\" ${CMAKE_CXX_STANDARD_LIBRARIES}")
+    set(CMAKE_C_STANDARD_LIBRARIES   "\"${YY_THUNKS_Win2K_OBJ}\" ${CMAKE_C_STANDARD_LIBRARIES}")
+    add_link_options("-SUBSYSTEM:CONSOLE,5.01")
+
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+endif()
+
+file(GLOB_RECURSE SOURCES 
+	"${CMAKE_CURRENT_LIST_DIR}/src/*.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/utillibs/*.cpp"
+)
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/src/"
+    "${CMAKE_CURRENT_LIST_DIR}/utillibs/"
+)
+
+target_link_libraries(${PROJECT_NAME} 
+    "${CMAKE_CURRENT_LIST_DIR}/utillibs/detours.lib"
+)
+
+if (MSVC)
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            LINK_FLAGS "/ENTRY:DllMainCRTStartupForYY_Thunks /DYNAMICBASE:NO"
+        )
+    else()
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            LINK_FLAGS "/DYNAMICBASE:NO"
+        )
+    endif()
+endif()
