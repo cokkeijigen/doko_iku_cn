@@ -7,23 +7,21 @@
 
 namespace work {
 
-    typedef struct {
+    struct entry {
         char name[0x30];
         int32_t val1; // offset?
         int32_t val2; // offset?
         int32_t size; // or int64_t size?
         int32_t val3;
-    } entry;
+    } ;
 
     const char* name_head = "head.bin";
     const char* name_data = "data.bin";
     namespace fsystem = std::filesystem;
-    typedef fsystem::directory_iterator diriter;
-    // mode std::ios::binary | std::ios::out
-    std::fstream head(name_head, 0x20 | 0x02);
-    std::fstream data(name_data, 0x20 | 0x02);
+    std::fstream head(name_head, std::ios::binary | std::ios::out);
+    std::fstream data(name_data, std::ios::binary | std::ios::out);
     work::entry top{ "DATA$TOP", 0, 0, 1, 0 };
-    std::stack<fsystem::path> directories;
+    std::stack<std::filesystem::path> directories;
     std::string output_file_path;
     size_t input_dir_path_length;
     size_t current_offset = 0;
@@ -79,7 +77,7 @@ namespace work {
     static size_t add_file_to_pack(fsystem::path dir, size_t offset) {
         work::directories.pop();
         size_t length = input_dir_path_length;
-        for (const auto& e : diriter(dir)) {
+        for (const auto& e : fsystem::directory_iterator(dir)) {
             if (e.is_directory()) {
                 directories.push(e.path());
             }
